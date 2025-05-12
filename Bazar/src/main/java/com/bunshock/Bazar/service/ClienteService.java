@@ -37,9 +37,7 @@ public class ClienteService implements IClienteService {
 
     @Override
     public Cliente getClienteById(Long id) {
-        return clienteRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente con"
-                        + " id (" + id + ") no fue encontrado"));
+        return clienteRepository.findById(id).orElse(null);
     }
 
     @Override
