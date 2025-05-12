@@ -20,23 +20,19 @@ public class Cliente {
     private String nombre;
     private String apellido;
     private String dni;
-    // Sería de utilidad que el cliente sepa cuales fueron sus ventas
-    // asociadas. Hacemos la relación bidireccional con Venta.
-    // Ademas, notar que una venta no puede existir sin un cliente.
-    // Decision: si borramos un cliente, borramos todas sus ventas asociadas.
-    @OneToMany(mappedBy="unCliente", cascade=CascadeType.REMOVE, orphanRemoval=true)
-    private List<Venta> ventasCliente;
+    // Sería de utilidad que el cliente sepa cuales fueron sus ventas? No tanto,
+    // si queremos saber las ventas de un cliente, consultamos la entidad Venta
+    // y filtramos por id del Cliente deseado.
+    // Decisión: No definimos @OneToMany del lado del Cliente
 
     public Cliente() {
     }
 
-    public Cliente(Long id_cliente, String nombre, String apellido, String dni,
-            List<Venta> ventasCliente) {
+    public Cliente(Long id_cliente, String nombre, String apellido, String dni) {
         this.id_cliente = id_cliente;
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
-        this.ventasCliente = ventasCliente;
     }
     
 }
