@@ -91,5 +91,10 @@ public class VentaService implements IVentaService {
         
         return ventaRepository.save(venta);
     }
+
+    @Override
+    public List<Producto> getVentaProductos(Long id) {
+        return this.getVentaById(id).getListaProductos();
+    }
     
 }

@@ -3,6 +3,7 @@ package com.bunshock.Bazar.controller;
 import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.OnUpdate;
 import com.bunshock.Bazar.dto.VentaDTO;
+import com.bunshock.Bazar.model.Producto;
 import com.bunshock.Bazar.model.Venta;
 import com.bunshock.Bazar.service.IVentaService;
 import com.bunshock.Bazar.utils.IControllerUtils;
@@ -91,6 +92,12 @@ public class VentaController {
         }
         
         return new ResponseEntity<>(ventaEditada, HttpStatus.OK);
+    }
+    
+    @GetMapping("/productos/{codigo_venta}")
+    public ResponseEntity<List<Producto>> traerProductosDeVenta(@PathVariable Long codigo_venta) {
+        return new ResponseEntity<>(ventaService.getVentaProductos(codigo_venta),
+                HttpStatus.OK);
     }
     
 }
