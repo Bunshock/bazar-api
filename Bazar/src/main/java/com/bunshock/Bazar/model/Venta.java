@@ -25,14 +25,14 @@ public class Venta {
     // Relación con Producto. Definimos la tabla de union.
     @ManyToMany
     @JoinTable(
-            name="venta_producto",
-            joinColumns=@JoinColumn(name="venta_codigo_venta"),
-            inverseJoinColumns=@JoinColumn(name="producto_codigo_producto")
+            name = "venta_producto",
+            joinColumns = @JoinColumn(name="venta_codigo_venta"),
+            inverseJoinColumns = @JoinColumn(name="producto_codigo_producto")
     )
     private List<Producto> listaProductos;
     // Relación con Cliente
     @ManyToOne
-    @JoinColumn(name="cliente_id_cliente")
+    @JoinColumn(name = "cliente_id_cliente")
     private Cliente unCliente;
 
     public Venta() {
