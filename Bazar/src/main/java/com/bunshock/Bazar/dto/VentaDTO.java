@@ -17,7 +17,7 @@ public class VentaDTO {
     @NotNull(message = "La fecha de venta no puede ser nula", groups = OnCreate.class)
     @PastOrPresent(message = "La fecha de venta no debe ser en el futuro",
             groups = {OnCreate.class, OnUpdate.class})
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fecha_venta;
     
     @NotNull(message = "El total no puede ser nulo", groups = OnCreate.class)
