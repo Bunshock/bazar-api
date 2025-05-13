@@ -30,17 +30,17 @@ public class ProductoDTO {
     @NotNull(message = "La cantidad disponible no puede ser nula", groups = OnCreate.class)
     @PositiveOrZero(message = "La cantidad disponible debe ser un número no negativo",
             groups = {OnCreate.class, OnUpdate.class})
-    private Double cantidad_disponible;
+    private Double cantidadDisponible;
 
     public ProductoDTO() {
     }
 
     public ProductoDTO(String nombre, String marca, Double costo,
-            Double cantidad_disponible) {
+            Double cantidadDisponible) {
         this.nombre = nombre;
         this.marca = marca;
         this.costo = costo;
-        this.cantidad_disponible = cantidad_disponible;
+        this.cantidadDisponible = cantidadDisponible;
     }
     
 }

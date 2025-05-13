@@ -74,4 +74,9 @@ public class ProductoController {
                 productoEditado), HttpStatus.OK);
     }
     
+    @GetMapping("/falta_stock")
+    public ResponseEntity<List<Producto>> traerProductosFaltaStock() {
+        return new ResponseEntity<>(productoService.getLowStockProducts(), HttpStatus.OK);
+    }
+    
 }
