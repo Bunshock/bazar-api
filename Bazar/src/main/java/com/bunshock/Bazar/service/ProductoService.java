@@ -25,7 +25,7 @@ public class ProductoService implements IProductoService {
         producto.setNombre(datosProducto.getNombre());
         producto.setMarca(datosProducto.getMarca());
         producto.setCosto(datosProducto.getCosto());
-        producto.setCantidad_disponible(datosProducto.getCantidad_disponible());
+        producto.setCantidadDisponible(datosProducto.getCantidadDisponible());
         
         productoRepository.save(producto);
     }
@@ -55,10 +55,15 @@ public class ProductoService implements IProductoService {
             producto.setMarca(productoEditado.getMarca());
         if (productoEditado.getCosto()!= null)
             producto.setCosto(productoEditado.getCosto());
-        if (productoEditado.getCantidad_disponible()!= null)
-            producto.setCantidad_disponible(productoEditado.getCantidad_disponible());
+        if (productoEditado.getCantidadDisponible()!= null)
+            producto.setCantidadDisponible(productoEditado.getCantidadDisponible());
         
         return productoRepository.save(producto);
+    }
+
+    @Override
+    public List<Producto> getLowStockProducts() {
+        return productoRepository.findByCantidadDisponibleLessThan(5.0);
     }
     
 }

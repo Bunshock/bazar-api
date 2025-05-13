@@ -14,4 +14,6 @@ public interface IProductoService {
     void deleteProducto(Long id);
     Producto editProducto(Long id, ProductoDTO productoEditado);
     
+    List<Producto> getLowStockProducts();
+    
 }

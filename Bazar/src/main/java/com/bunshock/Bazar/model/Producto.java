@@ -1,5 +1,6 @@
 package com.bunshock.Bazar.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +18,8 @@ public class Producto {
     private String nombre;
     private String marca;
     private Double costo;
-    private Double cantidad_disponible;
+    @Column(name = "cantidad_disponible")
+    private Double cantidadDisponible;
     // Sería de utilidad saber todas las ventas asociadas a determinado producto?
     // Sí, pero lo podemos hacer consultando a Venta.
     // Decisión: No incluimos @ManyToMany del lado de Producto (en relacion a Venta)
@@ -26,12 +28,12 @@ public class Producto {
     }
 
     public Producto(Long codigo_producto, String nombre, String marca,
-            Double costo, Double cantidad_disponible) {
+            Double costo, Double cantidadDisponible) {
         this.codigo_producto = codigo_producto;
         this.nombre = nombre;
         this.marca = marca;
         this.costo = costo;
-        this.cantidad_disponible = cantidad_disponible;
+        this.cantidadDisponible = cantidadDisponible;
     }
     
 }

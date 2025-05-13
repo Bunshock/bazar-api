@@ -1,5 +1,6 @@
 package com.bunshock.Bazar.service;
 
+import com.bunshock.Bazar.dto.ResumenVentasDTO;
 import com.bunshock.Bazar.dto.VentaDTO;
 import com.bunshock.Bazar.model.Cliente;
 import com.bunshock.Bazar.model.Producto;
@@ -9,6 +10,7 @@ import com.bunshock.Bazar.repository.IProductoRepository;
 import com.bunshock.Bazar.repository.IVentaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,6 +92,31 @@ public class VentaService implements IVentaService {
         }
         
         return ventaRepository.save(venta);
+    }
+
+    @Override
+    public List<Producto> getVentaProductos(Long id) {
+        return this.getVentaById(id).getListaProductos();
+    }
+
+    @Override
+    public ResumenVentasDTO getVentaResumeByDate(LocalDate fecha) { 
+        Object[] resumen = ventaRepository.getResumeByDate(fecha).get(0);
+        
+        Double montoDouble = (Double) resumen[0];
+        Long cantidadLong = (Long) resumen[1];
+        
+        // SUM puede devolver null si no hay coincidencias.
+        Double montoTotal = montoDouble != null ? montoDouble : 0.0;
+        // COUNT devuelve 0 si no hay coincidencias, no chequeamos por null.
+        int cantidadVentas = cantidadLong.intValue();
+        
+        return new ResumenVentasDTO(montoTotal, cantidadVentas);
+    }
+
+    @Override
+    public Venta getHighestTotalVenta() {
+        return ventaRepository.findTopByOrderByTotalDesc();
     }
     
 }

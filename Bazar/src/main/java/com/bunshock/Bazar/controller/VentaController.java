@@ -1,14 +1,19 @@
 package com.bunshock.Bazar.controller;
 
+import com.bunshock.Bazar.dto.MayorVentaDTO;
 import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.OnUpdate;
+import com.bunshock.Bazar.dto.ResumenVentasDTO;
 import com.bunshock.Bazar.dto.VentaDTO;
+import com.bunshock.Bazar.model.Producto;
 import com.bunshock.Bazar.model.Venta;
 import com.bunshock.Bazar.service.IVentaService;
 import com.bunshock.Bazar.utils.IControllerUtils;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -91,6 +96,34 @@ public class VentaController {
         }
         
         return new ResponseEntity<>(ventaEditada, HttpStatus.OK);
+    }
+    
+    @GetMapping("/productos/{codigo_venta}")
+    public ResponseEntity<List<Producto>> traerProductosDeVenta(@PathVariable Long codigo_venta) {
+        return new ResponseEntity<>(ventaService.getVentaProductos(codigo_venta),
+                HttpStatus.OK);
+    }
+    
+    // Decisión: Para no tener definiciones ambiguas con el metodo traerVentaPorId,
+    // agregamos a la ruta el prefijo /resumen
+    @GetMapping("/resumen/{fecha_venta}")
+    public ResponseEntity<ResumenVentasDTO> traerResumenVentasPorFecha(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_venta) {
+        return new ResponseEntity<>(ventaService.getVentaResumeByDate(fecha_venta),
+                HttpStatus.OK);
+    }
+    
+    @GetMapping("/mayor_venta")
+    public ResponseEntity<MayorVentaDTO> traerMayorVenta() {
+        Venta mayorVenta = ventaService.getHighestTotalVenta();
+        
+        return new ResponseEntity<>(new MayorVentaDTO(
+                mayorVenta.getCodigo_venta(),
+                mayorVenta.getTotal(),
+                mayorVenta.getListaProductos().size(),
+                mayorVenta.getUnCliente().getNombre(),
+                mayorVenta.getUnCliente().getApellido()
+        ), HttpStatus.OK);
     }
     
 }
