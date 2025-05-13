@@ -19,5 +19,6 @@ public interface IVentaService {
     
     List<Producto> getVentaProductos(Long id);
     ResumenVentasDTO getVentaResumeByDate(LocalDate fecha);
+    Venta getHighestTotalVenta();
     
 }

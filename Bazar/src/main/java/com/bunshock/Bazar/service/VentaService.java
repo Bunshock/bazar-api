@@ -10,7 +10,6 @@ import com.bunshock.Bazar.repository.IProductoRepository;
 import com.bunshock.Bazar.repository.IVentaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +112,11 @@ public class VentaService implements IVentaService {
         int cantidadVentas = cantidadLong.intValue();
         
         return new ResumenVentasDTO(montoTotal, cantidadVentas);
+    }
+
+    @Override
+    public Venta getHighestTotalVenta() {
+        return ventaRepository.findTopByOrderByTotalDesc();
     }
     
 }

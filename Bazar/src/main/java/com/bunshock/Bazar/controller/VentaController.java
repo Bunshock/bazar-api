@@ -1,5 +1,6 @@
 package com.bunshock.Bazar.controller;
 
+import com.bunshock.Bazar.dto.MayorVentaDTO;
 import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.OnUpdate;
 import com.bunshock.Bazar.dto.ResumenVentasDTO;
@@ -110,6 +111,19 @@ public class VentaController {
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_venta) {
         return new ResponseEntity<>(ventaService.getVentaResumeByDate(fecha_venta),
                 HttpStatus.OK);
+    }
+    
+    @GetMapping("/mayor_venta")
+    public ResponseEntity<MayorVentaDTO> traerMayorVenta() {
+        Venta mayorVenta = ventaService.getHighestTotalVenta();
+        
+        return new ResponseEntity<>(new MayorVentaDTO(
+                mayorVenta.getCodigo_venta(),
+                mayorVenta.getTotal(),
+                mayorVenta.getListaProductos().size(),
+                mayorVenta.getUnCliente().getNombre(),
+                mayorVenta.getUnCliente().getApellido()
+        ), HttpStatus.OK);
     }
     
 }
