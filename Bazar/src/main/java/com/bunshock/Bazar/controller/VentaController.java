@@ -52,7 +52,7 @@ public class VentaController {
         try {
             ventaService.saveVenta(datosVenta);
         }
-        catch (EntityNotFoundException e) {
+        catch (EntityNotFoundException | IllegalArgumentException e) {
             return new ResponseEntity<>("Error al crear venta: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }

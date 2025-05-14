@@ -12,6 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,11 +42,36 @@ public class VentaService implements IVentaService {
         venta.setFecha_venta(datosVenta.getFecha_venta());
         venta.setTotal(datosVenta.getTotal());
         
-        // Obtengo todos los productos con los ids ingresados. Si alguno
-        // de los ids ingresados no se corresponde con ningun producto existente
-        // en la base de datos, simplemente lo ignoro
-        List<Producto> listaProductos = productoRepository
-                .findAllById(datosVenta.getListaIdProductos());
+        // Para descontar los productos vendidos de cantidad_disponible en Producto
+        // (siempre y cuando la cantidad vendida no supere la cantidad disponible)
+        // junto los ids de los productos, con las veces que aparecen en la lista
+        // de ids de productos recibida.
+        Map<Long, Long> cantidadesPorId = datosVenta.getListaIdProductos().stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        // Obtengo todos los productos con los ids ingresados. Si un producto
+        // ingresado no existe, tiramos excepción. Además, verifico que la cantidad
+        // de dicho producto que se quiere vender no supera la cantidad disponible.
+        // Dado el caso que se supere la cantidad disponible, tiro una excepcion.
+        List<Producto> listaProductos = cantidadesPorId.entrySet().stream()
+                .map(entry -> {
+                    Long id = entry.getKey();
+                    Long cantidad = entry.getValue();
+                    
+                    Producto producto = productoRepository.findById(id)
+                            .orElseThrow(() -> new EntityNotFoundException("No se"
+                                    + " encontró producto con id: " + id));
+                    
+                    if (producto.getCantidadDisponible() < cantidad)
+                        throw new IllegalArgumentException("Stock insuficiente"
+                                + " para el producto (" + producto.getNombre()
+                                + ") con id: " + id);
+                    
+                    producto.setCantidadDisponible(producto.getCantidadDisponible() - cantidad);
+                    return producto;
+                })
+                .collect(Collectors.toList());
+        
         venta.setListaProductos(listaProductos);
         
         // Obtengo el Cliente relacionado al id ingresado
