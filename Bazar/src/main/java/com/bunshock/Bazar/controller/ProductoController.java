@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/productos")
+@PreAuthorize("hasRole('ADMIN')")
 public class ProductoController {
     
     private final IProductoService productoService;
@@ -48,11 +50,13 @@ public class ProductoController {
     }
     
     @GetMapping("")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<Producto>> traerProductos() {
         return new ResponseEntity<>(productoService.getProductos(), HttpStatus.OK);
     }
     
     @GetMapping("/{codigo_producto}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<Producto> traerProductoPorId(@PathVariable Long codigo_producto) {
         return new ResponseEntity<>(productoService.getProductoById(codigo_producto),
                 HttpStatus.OK);
