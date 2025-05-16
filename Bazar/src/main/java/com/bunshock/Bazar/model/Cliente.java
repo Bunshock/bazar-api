@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,15 +23,21 @@ public class Cliente {
     // si queremos saber las ventas de un cliente, consultamos la entidad Venta
     // y filtramos por id del Cliente deseado.
     // Decisión: No definimos @OneToMany del lado del Cliente
+    
+    // Puede haber clientes no registrados
+    @OneToOne(mappedBy = "cliente", optional = true)
+    private UserEntity usuario;
 
     public Cliente() {
     }
 
-    public Cliente(Long id_cliente, String nombre, String apellido, String dni) {
+    public Cliente(Long id_cliente, String nombre, String apellido, String dni,
+            UserEntity usuario) {
         this.id_cliente = id_cliente;
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
+        this.usuario = usuario;
     }
     
 }
