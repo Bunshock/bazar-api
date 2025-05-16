@@ -1,6 +1,7 @@
 package com.bunshock.Bazar.service;
 
 import com.bunshock.Bazar.dto.RegisterUserDTO;
+import com.bunshock.Bazar.model.Cliente;
 import com.bunshock.Bazar.model.RoleEntity;
 import com.bunshock.Bazar.model.RoleEnum;
 import com.bunshock.Bazar.model.UserEntity;
@@ -28,7 +29,7 @@ public class UserService implements IUserService {
     }
     
     @Override
-    public void registrarUsuario(RegisterUserDTO registroDTO) {
+    public void registrarUser(RegisterUserDTO registroDTO) {
         
         // Verificamos que no exista otro usuario con el mismo username
         if (userRepository.findByUsername(registroDTO.getUsername()).isPresent())
@@ -37,6 +38,8 @@ public class UserService implements IUserService {
         // Verificamos que el rol 'USER' este correctamente almacenado
         RoleEntity userRole = roleRepository.findByRoleEnum(RoleEnum.USER)
                 .orElseThrow(() -> new RuntimeException("El rol 'USER' no fue encontrado"));
+        
+        Cliente cliente = new Cliente();
         
         // Creamos y guardamos el nuevo usuario
         UserEntity user = UserEntity.builder()
@@ -47,6 +50,7 @@ public class UserService implements IUserService {
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
                 .roleSet(Set.of(userRole))
+                .cliente(cliente)
                 .build();
         
         userRepository.save(user);

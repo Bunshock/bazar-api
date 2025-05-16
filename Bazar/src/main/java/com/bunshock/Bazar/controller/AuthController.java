@@ -37,7 +37,7 @@ public class AuthController {
     public ResponseEntity<String> register(@RequestBody RegisterUserDTO registerDTO) {
         
         try {
-            userService.registrarUsuario(registerDTO);
+            userService.registrarUser(registerDTO);
         } catch(RuntimeException e) {
             return new ResponseEntity<>("Error al crear nuevo usuario: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
