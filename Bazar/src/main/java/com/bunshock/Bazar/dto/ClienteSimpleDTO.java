@@ -8,7 +8,7 @@ import lombok.Setter;
 
 
 @Getter @Setter
-public class ClienteDTO {
+public class ClienteSimpleDTO {
     
     @NotBlank(message = "El nombre no puede estar vacío", groups = OnCreate.class)
     @Size(min = 2, max = 50, message = "El nombre debe tener una longitud"
@@ -25,10 +25,10 @@ public class ClienteDTO {
             + " de DNI inválido", groups = {OnCreate.class, OnUpdate.class})
     private String dni;
 
-    public ClienteDTO() {
+    public ClienteSimpleDTO() {
     }
 
-    public ClienteDTO(String nombre, String apellido, String dni) {
+    public ClienteSimpleDTO(String nombre, String apellido, String dni) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
