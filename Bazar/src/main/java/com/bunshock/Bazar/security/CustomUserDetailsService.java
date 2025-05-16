@@ -1,10 +1,12 @@
 package com.bunshock.Bazar.security;
 
+import com.bunshock.Bazar.model.RoleEntity;
 import com.bunshock.Bazar.model.UserEntity;
 import com.bunshock.Bazar.repository.IUserRepository;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,17 +33,21 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+        for (RoleEntity role : user.getRoleSet()) {
+            System.out.println("Role: " + role.getRoleEnum().name());
+        }
         
-        // Agregamos los roles al user
-        user.getRoleSet()
-                .forEach(role -> authorityList.add(new SimpleGrantedAuthority(
-                        "ROLE_".concat(role.getRoleEnum().name()))));
+        Set<GrantedAuthority> authorities = new HashSet<>();
         
-        user.getRoleSet().stream()
-                .flatMap(role -> role.getPermissionSet().stream())
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(
-                        permission.getName())));
+        // Agregamos los roles al user (con prefijo ROLE_)
+        user.getRoleSet().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleEnum().name()));
+            
+            // Agregar los permisos del rol
+            role.getPermissionSet().forEach(permission -> 
+                authorities.add(new SimpleGrantedAuthority(permission.getName()))
+            );
+        });
         
         return new User(
                 user.getUsername(),
@@ -50,7 +56,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.isAccountNonExpired(),
                 user.isCredentialsNonExpired(),
                 user.isAccountNonLocked(),
-                authorityList
+                authorities
         );
     }
     
