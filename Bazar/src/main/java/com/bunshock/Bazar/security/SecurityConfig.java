@@ -3,6 +3,7 @@ package com.bunshock.Bazar.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -41,7 +42,10 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // Acceso global a registro y login
                         .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().denyAll()
+                        // Acceso global a la lista de productos del bazar
+                        .requestMatchers(HttpMethod.GET, "/productos").permitAll()
+                        // Cualquier otro endpoint, necesita autenticación
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
         
