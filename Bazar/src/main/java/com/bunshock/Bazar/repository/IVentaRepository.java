@@ -3,6 +3,7 @@ package com.bunshock.Bazar.repository;
 import com.bunshock.Bazar.model.Venta;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -25,5 +26,7 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
     
     // Traer las ventas de determinado usuario
     List<Venta> findByUnCliente_IdCliente(Long id);
+    
+    Optional<Venta> findByUnCliente_IdClienteAndCodigoVenta(Long id_cliente, Long codigo_venta);
     
 }

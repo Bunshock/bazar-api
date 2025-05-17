@@ -14,23 +14,22 @@ public interface IVentaService {
     // CRUD Venta
     void saveVenta(VentaDTO datosVenta, Long id_cliente);
     List<VentaMostrarDTO> getVentas();
-    VentaMostrarDTO getVentaById(Long id);
-    void deleteVenta(Long id);
-    VentaMostrarDTO editVenta(Long id, VentaDTO ventaEditada, Long id_cliente);
+    VentaMostrarDTO getVentaById(Long codigo_venta);
+    void deleteVenta(Long codigo_venta);
+    VentaMostrarDTO editVenta(Long codigo_venta, VentaDTO ventaEditada, Long id_cliente);
     
-    List<Producto> getVentaProductos(Long id);
+    List<Producto> getVentaProductos(Long codigo_venta);
     ResumenVentasDTO getVentaResumeByDate(LocalDate fecha);
     Venta getHighestTotalVenta();
     
     // Descontar productos del stock y finalizar venta. NOTAR: No es necesario
     // tener el stock disponible al momento de crear una venta. Sólo al momento de 
     // concretarla
-    void concretarVenta(Long id);
+    void concretarVenta(Long codigo_venta);
     
     void saveMiVenta(VentaDTO datosVenta);
     List<VentaMostrarDTO> getMisVentas();
-    // AGREGAR: Editar mis ventas (si no fueron concretadas todavía) /mis-ventas/editar/{codigo_venta}
-    //          Borrar mis ventas (si no fueron concretadas todavía) /mis-ventas/eliminar/{codigo_venta}
-    //          Consultar mis ventas individuales   /mis-ventas/{codigo_venta}
+    VentaMostrarDTO getMiVentaById(Long codigo_venta);
+    void deleteMiVenta(Long codigo_venta);
     
 }

@@ -82,25 +82,25 @@ public class VentaService implements IVentaService {
     }
 
     @Override
-    public VentaMostrarDTO getVentaById(Long id) {
-        Venta venta = ventaRepository.findById(id)
+    public VentaMostrarDTO getVentaById(Long codigo_venta) {
+        Venta venta = ventaRepository.findById(codigo_venta)
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
-                        + "id (" + id + ") no fue encontrada"));
+                        + "id (" + codigo_venta + ") no fue encontrada"));
         
         return serviceUtils.mapVentaToVentaMostrarDTO(venta);
     }
 
     @Override
-    public void deleteVenta(Long id) {
-        ventaRepository.deleteById(id);
+    public void deleteVenta(Long codigo_venta) {
+        ventaRepository.deleteById(codigo_venta);
     }
 
     @Override
     @Transactional
-    public VentaMostrarDTO editVenta(Long id, VentaDTO ventaEditada, Long id_cliente) {
-        Venta venta = ventaRepository.findById(id)
+    public VentaMostrarDTO editVenta(Long codigo_venta, VentaDTO ventaEditada, Long id_cliente) {
+        Venta venta = ventaRepository.findById(codigo_venta)
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
-                        + "id (" + id + ") no fue encontrada"));
+                        + "id (" + codigo_venta + ") no fue encontrada"));
         
         if (ventaEditada.getFecha_venta() != null)
             venta.setFecha_venta(ventaEditada.getFecha_venta());
@@ -124,10 +124,10 @@ public class VentaService implements IVentaService {
     }
 
     @Override
-    public List<Producto> getVentaProductos(Long id) {
-        Venta venta = ventaRepository.findById(id)
+    public List<Producto> getVentaProductos(Long codigo_venta) {
+        Venta venta = ventaRepository.findById(codigo_venta)
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
-                        + "id (" + id + ") no fue encontrada"));
+                        + "id (" + codigo_venta + ") no fue encontrada"));
         return venta.getListaProductos();
     }
 
@@ -153,10 +153,10 @@ public class VentaService implements IVentaService {
 
     @Override
     @Transactional
-    public void concretarVenta(Long id) {
-        Venta venta = ventaRepository.findById(id)
+    public void concretarVenta(Long codigo_venta) {
+        Venta venta = ventaRepository.findById(codigo_venta)
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
-                        + "id (" + id + ") no fue encontrada"));
+                        + "id (" + codigo_venta + ") no fue encontrada"));
 
         // Para descontar los productos vendidos de cantidad_disponible en Producto
         // (siempre y cuando la cantidad vendida no supere la cantidad disponible)
@@ -230,11 +230,49 @@ public class VentaService implements IVentaService {
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        List<Venta> listaMisVentas = ventaRepository.findByUnCliente_IdCliente(user.getCliente().getIdCliente());
+        List<Venta> listaMisVentas = ventaRepository.findByUnCliente_IdCliente(
+                user.getCliente().getIdCliente());
         
         return listaMisVentas.stream()
                 .map(venta -> serviceUtils.mapVentaToVentaMostrarDTO(venta))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public VentaMostrarDTO getMiVentaById(Long codigo_venta) {
+        // Obtenemos el usuario relacionado al cliente logueado
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
+                        + "username (" + username + ") no existe"));
+        
+        Venta venta = ventaRepository.findByUnCliente_IdClienteAndCodigoVenta(
+                user.getCliente().getIdCliente(), codigo_venta).orElseThrow(
+                        () -> new EntityNotFoundException("El cliente con id (" 
+                                + user.getCliente().getIdCliente() + ") no tiene asociado "
+                                        + "una venta con código: " + codigo_venta)
+                );
+        
+        return serviceUtils.mapVentaToVentaMostrarDTO(venta);
+    }
+
+    @Override
+    public void deleteMiVenta(Long codigo_venta) {
+        // Obtenemos el usuario logueado
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
+                        + "username (" + username + ") no existe"));
+        
+        // Verificamos que la venta indicada corresponda al cliente del usuario logueado
+        Venta venta = ventaRepository.findByUnCliente_IdClienteAndCodigoVenta(
+                user.getCliente().getIdCliente(), codigo_venta).orElseThrow(
+                        () -> new EntityNotFoundException("El cliente con id (" 
+                                + user.getCliente().getIdCliente() + ") no tiene asociado "
+                                        + "una venta con código: " + codigo_venta)
+                );
+        
+        ventaRepository.delete(venta);
     }
     
 }

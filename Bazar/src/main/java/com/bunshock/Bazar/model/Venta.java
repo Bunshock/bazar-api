@@ -1,5 +1,6 @@
 package com.bunshock.Bazar.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +21,8 @@ public class Venta {
     
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    private Long codigo_venta;
+    @Column(name = "codigo_venta")
+    private Long codigoVenta;
     private LocalDate fecha_venta;
     private Double total;
     private boolean realizada;
@@ -40,9 +42,9 @@ public class Venta {
     public Venta() {
     }
 
-    public Venta(Long codigo_venta, LocalDate fecha_venta, Double total,
+    public Venta(Long codigoVenta, LocalDate fecha_venta, Double total,
             List<Producto> listaProductos, Cliente unCliente) {
-        this.codigo_venta = codigo_venta;
+        this.codigoVenta = codigoVenta;
         this.fecha_venta = fecha_venta;
         this.realizada = false;
         this.total = total;

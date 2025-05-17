@@ -78,7 +78,8 @@ public class VentaController {
     
     @DeleteMapping("/eliminar/{codigo_venta}")
     public ResponseEntity<String> borrarVenta(@PathVariable Long codigo_venta) {
-        return new ResponseEntity<>("Producto borrado exitosamente", HttpStatus.OK);
+        ventaService.deleteVenta(codigo_venta);
+        return new ResponseEntity<>("Venta borrada exitosamente", HttpStatus.OK);
     }
     
     @PutMapping("/editar/{codigo_venta}")
@@ -122,7 +123,7 @@ public class VentaController {
         Venta mayorVenta = ventaService.getHighestTotalVenta();
         
         return new ResponseEntity<>(new MayorVentaDTO(
-                mayorVenta.getCodigo_venta(),
+                mayorVenta.getCodigoVenta(),
                 mayorVenta.getTotal(),
                 mayorVenta.getListaProductos().size(),
                 mayorVenta.getUnCliente().getNombre(),
@@ -158,6 +159,35 @@ public class VentaController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<VentaMostrarDTO>> traerMisVentas() {
         return new ResponseEntity<>(ventaService.getMisVentas(), HttpStatus.OK);
+    }
+    
+    @GetMapping("/mis-ventas/{codigo_venta}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> traerMiVentaPorId(@PathVariable Long codigo_venta) {
+        VentaMostrarDTO miVenta;
+        
+        try {
+            miVenta = ventaService.getMiVentaById(codigo_venta);
+        } catch(UsernameNotFoundException | EntityNotFoundException e) {
+            return new ResponseEntity<>("Error al obtener venta: " + e.getMessage(),
+                    HttpStatus.BAD_REQUEST);
+        }
+        
+        return new ResponseEntity<>(miVenta, HttpStatus.OK);
+    }
+    
+    @DeleteMapping("/mis-ventas/eliminar/{codigo_venta}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> borrarMiVenta(@PathVariable Long codigo_venta) {
+        
+        try {
+            ventaService.deleteMiVenta(codigo_venta);
+        } catch(UsernameNotFoundException | EntityNotFoundException e) {
+            return new ResponseEntity<>("Error al borrar venta: " + e.getMessage(),
+                    HttpStatus.BAD_REQUEST);
+        }
+        
+        return new ResponseEntity<>("Venta borrada exitosamente", HttpStatus.OK);
     }
     
 }
