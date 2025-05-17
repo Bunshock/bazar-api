@@ -24,6 +24,6 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
     // pero estaría devolviendo todas las ventas con el monto máximo. Yo sólo quiero una
     
     // Traer las ventas de determinado usuario
-    List<Venta> findByUnCliente(Long id);
+    List<Venta> findByUnCliente_IdCliente(Long id);
     
 }

@@ -1,5 +1,6 @@
 package com.bunshock.Bazar.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +17,8 @@ public class Cliente {
     
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    private Long id_cliente;
+    @Column(name = "id_cliente")
+    private Long idCliente;
     private String nombre;
     private String apellido;
     private String dni;
@@ -33,9 +35,9 @@ public class Cliente {
     public Cliente() {
     }
 
-    public Cliente(Long id_cliente, String nombre, String apellido, String dni,
+    public Cliente(Long idCliente, String nombre, String apellido, String dni,
             UserEntity usuario) {
-        this.id_cliente = id_cliente;
+        this.idCliente = idCliente;
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;

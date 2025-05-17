@@ -101,7 +101,7 @@ public class ClienteService implements IClienteService {
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        Cliente cliente = clienteRepository.findById(user.getCliente().getId_cliente())
+        Cliente cliente = clienteRepository.findById(user.getCliente().getIdCliente())
                 .orElseThrow(() -> new EntityNotFoundException("El usuario con "
                         + "username (" + username + ") no tiene cliente asociado"));
         

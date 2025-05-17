@@ -201,7 +201,7 @@ public class VentaService implements IVentaService {
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        List<Venta> listaMisVentas = ventaRepository.findByUnCliente(user.getCliente().getId_cliente());
+        List<Venta> listaMisVentas = ventaRepository.findByUnCliente_IdCliente(user.getCliente().getIdCliente());
         
         return listaMisVentas.stream()
                 .map(venta -> serviceUtils.mapVentaToVentaMostrarDTO(venta))
