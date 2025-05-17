@@ -9,24 +9,28 @@ import lombok.Setter;
 @Getter @Setter
 public class VentaMostrarDTO {
     
+    private Long codigo_venta;
     private LocalDate fecha_venta;
     private Double total;
     private boolean realizada;
     
     private List<ProductoVentaDTO> productosComprados;
     
-    private String nombre_cliente;
+    private String dni_cliente;
 
     public VentaMostrarDTO() {
     }
 
-    public VentaMostrarDTO(LocalDate fecha_venta, Double total, boolean realizada,
-            List<ProductoVentaDTO> productosComprados, String nombre_cliente) {
+    public VentaMostrarDTO(Long codigo_venta, LocalDate fecha_venta, Double total,
+            boolean realizada, List<ProductoVentaDTO> productosComprados, String nombre_cliente) {
+        this.codigo_venta = codigo_venta;
         this.fecha_venta = fecha_venta;
         this.total = total;
         this.realizada = realizada;
         this.productosComprados = productosComprados;
-        this.nombre_cliente = nombre_cliente;
+        this.dni_cliente = nombre_cliente;
     }
+
+    
     
 }

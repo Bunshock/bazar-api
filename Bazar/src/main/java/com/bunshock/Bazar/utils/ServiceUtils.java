@@ -27,6 +27,7 @@ public class ServiceUtils implements IServiceUtils {
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         
         return new VentaMostrarDTO(
+                venta.getCodigoVenta(),
                 venta.getFecha_venta(),
                 venta.getTotal(),
                 venta.isRealizada(),
@@ -39,7 +40,7 @@ public class ServiceUtils implements IServiceUtils {
                                         .doubleValue()
                         ))
                         .collect(Collectors.toList()),
-                venta.getUnCliente().getNombre()
+                venta.getUnCliente().getDni()
         );
     }
     
