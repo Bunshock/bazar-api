@@ -18,6 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -46,22 +48,21 @@ public class VentaController {
     
     @PostMapping("/crear")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> crearVenta(@Validated(OnCreate.class) @RequestBody VentaDTO datosVenta,
-            BindingResult bindingResult) {
+    public ResponseEntity<String> crearVenta(@Validated(OnCreate.class) @RequestBody VentaDTO datosVenta,
+            BindingResult bindingResult, @RequestParam Long id_cliente) {
         
         if (bindingResult.hasErrors())
             return controllerUtils.handleValidationErrors(bindingResult);
         
         try {
-            ventaService.saveVenta(datosVenta);
+            ventaService.saveVenta(datosVenta, id_cliente);
         }
         catch (EntityNotFoundException | IllegalArgumentException e) {
             return new ResponseEntity<>("Error al crear venta: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }
         
-        return new ResponseEntity<>("Venta creada satisfactoriamente",
-                HttpStatus.CREATED);
+        return new ResponseEntity<>("Venta creada satisfactoriamente", HttpStatus.CREATED);
     }
     
     @GetMapping("")
@@ -83,7 +84,7 @@ public class VentaController {
     @PutMapping("/editar/{codigo_venta}")
     public ResponseEntity<?> editarVenta(@PathVariable Long codigo_venta,
             @Validated(OnUpdate.class) @RequestBody VentaDTO productoEditado,
-            BindingResult bindingResult) {
+            BindingResult bindingResult, @RequestParam Long id_cliente) {
         
         if (bindingResult.hasErrors())
             return controllerUtils.handleValidationErrors(bindingResult);
@@ -91,7 +92,7 @@ public class VentaController {
         VentaMostrarDTO ventaEditada;
         
         try {
-            ventaEditada = ventaService.editVenta(codigo_venta, productoEditado);
+            ventaEditada = ventaService.editVenta(codigo_venta, productoEditado, id_cliente);
         }
         catch (EntityNotFoundException e) {
             return new ResponseEntity<>("Error al editar venta: " + e.getMessage(),
@@ -133,6 +134,24 @@ public class VentaController {
     public ResponseEntity<String> concretarVentaPendiente(@PathVariable Long codigo_venta) {
         ventaService.concretarVenta(codigo_venta);
         return new ResponseEntity<>("Venta (" + codigo_venta + ") concretada", HttpStatus.OK);
+    }
+    
+    @PostMapping("/mis-ventas/crear")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> crearMiVenta(@Validated(OnCreate.class) @RequestBody VentaDTO datosVenta,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors())
+            return controllerUtils.handleValidationErrors(bindingResult);
+        
+        try {
+            ventaService.saveMiVenta(datosVenta);
+        }
+        catch (EntityNotFoundException | UsernameNotFoundException e) {
+            return new ResponseEntity<>("Error al crear venta: " + e.getMessage(),
+                    HttpStatus.BAD_REQUEST);
+        }
+        
+        return new ResponseEntity<>("Venta creada satisfactoriamente", HttpStatus.CREATED);
     }
     
     @GetMapping("/mis-ventas")

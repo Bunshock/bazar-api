@@ -12,11 +12,11 @@ import java.util.List;
 public interface IVentaService {
     
     // CRUD Venta
-    void saveVenta(VentaDTO datosVenta);
+    void saveVenta(VentaDTO datosVenta, Long id_cliente);
     List<VentaMostrarDTO> getVentas();
     VentaMostrarDTO getVentaById(Long id);
     void deleteVenta(Long id);
-    VentaMostrarDTO editVenta(Long id, VentaDTO ventaEditada);
+    VentaMostrarDTO editVenta(Long id, VentaDTO ventaEditada, Long id_cliente);
     
     List<Producto> getVentaProductos(Long id);
     ResumenVentasDTO getVentaResumeByDate(LocalDate fecha);
@@ -27,6 +27,7 @@ public interface IVentaService {
     // concretarla
     void concretarVenta(Long id);
     
+    void saveMiVenta(VentaDTO datosVenta);
     List<VentaMostrarDTO> getMisVentas();
     // AGREGAR: Editar mis ventas (si no fueron concretadas todavía) /mis-ventas/editar/{codigo_venta}
     //          Borrar mis ventas (si no fueron concretadas todavía) /mis-ventas/eliminar/{codigo_venta}

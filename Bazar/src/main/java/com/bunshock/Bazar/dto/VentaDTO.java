@@ -28,10 +28,6 @@ public class VentaDTO {
     @NotEmpty(message = "La lista de productos de la venta no puede ser nula o"
             + " vacía", groups = {OnCreate.class})
     private List<Long> listaIdProductos;
-    
-    @NotNull(message = "El id del cliente asociado a la venta no puede ser nulo",
-            groups = OnCreate.class)
-    private Long idCliente;
 
     public VentaDTO() {
     }
@@ -41,7 +37,6 @@ public class VentaDTO {
         this.fecha_venta = fecha_venta;
         this.total = total;
         this.listaIdProductos = listaIdProductos;
-        this.idCliente = idCliente;
     }
     
 }
