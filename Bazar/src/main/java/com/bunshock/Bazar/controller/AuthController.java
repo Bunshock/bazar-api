@@ -1,10 +1,10 @@
 package com.bunshock.Bazar.controller;
 
-import com.bunshock.Bazar.dto.JwtResponseDTO;
-import com.bunshock.Bazar.dto.LoginUserDTO;
-import com.bunshock.Bazar.dto.RegisterUserDTO;
-import com.bunshock.Bazar.security.JwtProvider;
-import com.bunshock.Bazar.service.IUserService;
+import com.bunshock.Bazar.dto.auth.JwtResponseDTO;
+import com.bunshock.Bazar.dto.auth.LoginUserDTO;
+import com.bunshock.Bazar.dto.auth.RegisterUserDTO;
+import com.bunshock.Bazar.security.config.JwtProvider;
+import com.bunshock.Bazar.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
