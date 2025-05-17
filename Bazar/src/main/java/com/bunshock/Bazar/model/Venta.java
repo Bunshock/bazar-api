@@ -17,11 +17,13 @@ import lombok.Setter;
 @Entity
 @Getter @Setter
 public class Venta {
+    
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
     private Long codigo_venta;
     private LocalDate fecha_venta;
     private Double total;
+    private boolean realizada;
     // Relación con Producto. Definimos la tabla de union.
     @ManyToMany
     @JoinTable(
@@ -42,6 +44,7 @@ public class Venta {
             List<Producto> listaProductos, Cliente unCliente) {
         this.codigo_venta = codigo_venta;
         this.fecha_venta = fecha_venta;
+        this.realizada = false;
         this.total = total;
         this.listaProductos = listaProductos;
         this.unCliente = unCliente;
