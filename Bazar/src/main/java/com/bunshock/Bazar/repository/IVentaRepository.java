@@ -23,4 +23,7 @@ public interface IVentaRepository extends JpaRepository<Venta, Long> {
     // @Query("SELECT v FROM Venta v WHERE v.total = (SELECT MAX(v2.total) FROM Venta v2)")
     // pero estaría devolviendo todas las ventas con el monto máximo. Yo sólo quiero una
     
+    // Traer las ventas de determinado usuario
+    List<Venta> findByUnCliente(Long id);
+    
 }

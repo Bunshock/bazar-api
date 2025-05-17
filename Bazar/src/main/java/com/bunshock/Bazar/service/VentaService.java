@@ -2,12 +2,16 @@ package com.bunshock.Bazar.service;
 
 import com.bunshock.Bazar.dto.ResumenVentasDTO;
 import com.bunshock.Bazar.dto.VentaDTO;
+import com.bunshock.Bazar.dto.VentaMostrarDTO;
 import com.bunshock.Bazar.model.Cliente;
 import com.bunshock.Bazar.model.Producto;
+import com.bunshock.Bazar.model.UserEntity;
 import com.bunshock.Bazar.model.Venta;
 import com.bunshock.Bazar.repository.IClienteRepository;
 import com.bunshock.Bazar.repository.IProductoRepository;
+import com.bunshock.Bazar.repository.IUserRepository;
 import com.bunshock.Bazar.repository.IVentaRepository;
+import com.bunshock.Bazar.utils.IServiceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -16,6 +20,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
@@ -25,13 +31,18 @@ public class VentaService implements IVentaService {
     private final IVentaRepository ventaRepository;
     private final IProductoRepository productoRepository;
     private final IClienteRepository clienteRepository;
+    private final IUserRepository userRepository;
+    private final IServiceUtils serviceUtils;
     
     @Autowired
     public VentaService(IVentaRepository ventaRepository,
-            IProductoRepository productoRepository, IClienteRepository clienteRepository) {
+            IProductoRepository productoRepository, IClienteRepository clienteRepository,
+            IUserRepository userRepository, IServiceUtils serviceUtils) {
         this.ventaRepository = ventaRepository;
         this.productoRepository = productoRepository;
         this.clienteRepository = clienteRepository;
+        this.userRepository = userRepository;
+        this.serviceUtils = serviceUtils;
     }
 
     @Override
@@ -41,37 +52,15 @@ public class VentaService implements IVentaService {
         
         venta.setFecha_venta(datosVenta.getFecha_venta());
         venta.setTotal(datosVenta.getTotal());
-        
-        // Para descontar los productos vendidos de cantidad_disponible en Producto
-        // (siempre y cuando la cantidad vendida no supere la cantidad disponible)
-        // junto los ids de los productos, con las veces que aparecen en la lista
-        // de ids de productos recibida.
-        Map<Long, Long> cantidadesPorId = datosVenta.getListaIdProductos().stream()
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
         // Obtengo todos los productos con los ids ingresados. Si un producto
-        // ingresado no existe, tiramos excepción. Además, verifico que la cantidad
-        // de dicho producto que se quiere vender no supera la cantidad disponible.
-        // Dado el caso que se supere la cantidad disponible, tiro una excepcion.
-        List<Producto> listaProductos = cantidadesPorId.entrySet().stream()
-                .map(entry -> {
-                    Long id = entry.getKey();
-                    Long cantidad = entry.getValue();
-                    
-                    Producto producto = productoRepository.findById(id)
-                            .orElseThrow(() -> new EntityNotFoundException("No se"
-                                    + " encontró producto con id: " + id));
-                    
-                    if (producto.getCantidadDisponible() < cantidad)
-                        throw new IllegalArgumentException("Stock insuficiente"
-                                + " para el producto (" + producto.getNombre()
-                                + ") con id: " + id);
-                    
-                    producto.setCantidadDisponible(producto.getCantidadDisponible() - cantidad);
-                    return producto;
-                })
+        // ingresado no existe, tiramos excepción.
+        List<Producto> listaProductos = datosVenta.getListaIdProductos().stream()
+                .map(id -> productoRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("No se"
+                                    + " encontró producto con id: " + id))
+                )
                 .collect(Collectors.toList());
-        
         venta.setListaProductos(listaProductos);
         
         // Obtengo el Cliente relacionado al id ingresado
@@ -84,13 +73,21 @@ public class VentaService implements IVentaService {
     }
 
     @Override
-    public List<Venta> getVentas() {
-        return ventaRepository.findAll();
+    public List<VentaMostrarDTO> getVentas() {
+        List<Venta> listaVentas = ventaRepository.findAll();
+        
+        return listaVentas.stream()
+                .map(venta -> serviceUtils.mapVentaToVentaMostrarDTO(venta))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Venta getVentaById(Long id) {
-        return ventaRepository.findById(id).orElse(null);
+    public VentaMostrarDTO getVentaById(Long id) {
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("La venta con "
+                        + "id (" + id + ") no fue encontrada"));
+        
+        return serviceUtils.mapVentaToVentaMostrarDTO(venta);
     }
 
     @Override
@@ -100,8 +97,10 @@ public class VentaService implements IVentaService {
 
     @Override
     @Transactional
-    public Venta editVenta(Long id, VentaDTO ventaEditada) {
-        Venta venta = this.getVentaById(id);
+    public VentaMostrarDTO editVenta(Long id, VentaDTO ventaEditada) {
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("La venta con "
+                        + "id (" + id + ") no fue encontrada"));
         
         if (ventaEditada.getFecha_venta() != null)
             venta.setFecha_venta(ventaEditada.getFecha_venta());
@@ -119,12 +118,17 @@ public class VentaService implements IVentaService {
             venta.setUnCliente(cliente);
         }
         
-        return ventaRepository.save(venta);
+        ventaRepository.save(venta);
+        
+        return serviceUtils.mapVentaToVentaMostrarDTO(venta);
     }
 
     @Override
     public List<Producto> getVentaProductos(Long id) {
-        return this.getVentaById(id).getListaProductos();
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("La venta con "
+                        + "id (" + id + ") no fue encontrada"));
+        return venta.getListaProductos();
     }
 
     @Override
@@ -146,5 +150,63 @@ public class VentaService implements IVentaService {
     public Venta getHighestTotalVenta() {
         return ventaRepository.findTopByOrderByTotalDesc();
     }
+
+    @Override
+    @Transactional
+    public void concretarVenta(Long id) {
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("La venta con "
+                        + "id (" + id + ") no fue encontrada"));
+
+        // Para descontar los productos vendidos de cantidad_disponible en Producto
+        // (siempre y cuando la cantidad vendida no supere la cantidad disponible)
+        // junto los ids de los productos, con las veces que aparecen en la lista
+        // de ids de productos recibida.
+        Map<Long, Long> cantidadesPorId = venta.getListaProductos().stream()
+                .map(producto -> producto.getCodigo_producto())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        
+        // Verifico que la cantidad de dicho producto que se quiere vender no supera
+        // la cantidad disponible. Dado el caso que se supere la cantidad disponible,
+        // tiro una excepcion.
+        cantidadesPorId.entrySet().stream()
+                .map(entry -> {
+                    Long codigoProducto = entry.getKey();
+                    Long cantidadDisponible = entry.getValue();
+                    
+                    Producto producto = productoRepository.findById(codigoProducto)
+                            .orElseThrow(() -> new EntityNotFoundException("No se"
+                                    + " encontró producto con código: " + codigoProducto));
+                    
+                    if (producto.getCantidadDisponible() < cantidadDisponible)
+                        throw new IllegalArgumentException("Stock insuficiente"
+                                + " para el producto (" + producto.getNombre()
+                                + ") con código: " + codigoProducto);
+                    
+                    producto.setCantidadDisponible(producto.getCantidadDisponible() - cantidadDisponible);
+                    productoRepository.save(producto);
+                    return producto;
+                });
+        
+        venta.setRealizada(true);
+        
+        ventaRepository.save(venta);
+    }
+    
+    @Override
+    public List<VentaMostrarDTO> getMisVentas() {
+        // Obtenemos el usuario relacionado al cliente logueado
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
+                        + "username (" + username + ") no existe"));
+        
+        List<Venta> listaMisVentas = ventaRepository.findByUnCliente(user.getCliente().getId_cliente());
+        
+        return listaMisVentas.stream()
+                .map(venta -> serviceUtils.mapVentaToVentaMostrarDTO(venta))
+                .collect(Collectors.toList());
+    }
+    
     
 }

@@ -5,6 +5,7 @@ import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.OnUpdate;
 import com.bunshock.Bazar.dto.ResumenVentasDTO;
 import com.bunshock.Bazar.dto.VentaDTO;
+import com.bunshock.Bazar.dto.VentaMostrarDTO;
 import com.bunshock.Bazar.model.Producto;
 import com.bunshock.Bazar.model.Venta;
 import com.bunshock.Bazar.service.IVentaService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,19 +32,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/ventas")
+@PreAuthorize("hasRole('ADMIN')")
 public class VentaController {
     
     private final IVentaService ventaService;
     private final IControllerUtils controllerUtils;
     
     @Autowired
-    public VentaController(IVentaService ventaService,
-            IControllerUtils controllerUtils) {
+    public VentaController(IVentaService ventaService, IControllerUtils controllerUtils) {
         this.ventaService = ventaService;
         this.controllerUtils = controllerUtils;
     }
     
     @PostMapping("/crear")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> crearVenta(@Validated(OnCreate.class) @RequestBody VentaDTO datosVenta,
             BindingResult bindingResult) {
         
@@ -62,12 +65,12 @@ public class VentaController {
     }
     
     @GetMapping("")
-    public ResponseEntity<List<Venta>> traerVentas() {
+    public ResponseEntity<List<VentaMostrarDTO>> traerVentas() {
         return new ResponseEntity<>(ventaService.getVentas(), HttpStatus.OK);
     }
     
     @GetMapping("/{codigo_venta}")
-    public ResponseEntity<Venta> traerVentaPorId(@PathVariable Long codigo_venta) {
+    public ResponseEntity<VentaMostrarDTO> traerVentaPorId(@PathVariable Long codigo_venta) {
         return new ResponseEntity<>(ventaService.getVentaById(codigo_venta),
                 HttpStatus.OK);
     }
@@ -85,7 +88,7 @@ public class VentaController {
         if (bindingResult.hasErrors())
             return controllerUtils.handleValidationErrors(bindingResult);
         
-        Venta ventaEditada;
+        VentaMostrarDTO ventaEditada;
         
         try {
             ventaEditada = ventaService.editVenta(codigo_venta, productoEditado);
@@ -124,6 +127,18 @@ public class VentaController {
                 mayorVenta.getUnCliente().getNombre(),
                 mayorVenta.getUnCliente().getApellido()
         ), HttpStatus.OK);
+    }
+    
+    @PutMapping("/concretar/{codigo_venta}")
+    public ResponseEntity<String> concretarVentaPendiente(@PathVariable Long codigo_venta) {
+        ventaService.concretarVenta(codigo_venta);
+        return new ResponseEntity<>("Venta (" + codigo_venta + ") concretada", HttpStatus.OK);
+    }
+    
+    @GetMapping("/mis-ventas")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<VentaMostrarDTO>> traerMisVentas() {
+        return new ResponseEntity<>(ventaService.getMisVentas(), HttpStatus.OK);
     }
     
 }
