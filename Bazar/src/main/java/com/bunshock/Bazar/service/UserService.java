@@ -7,6 +7,7 @@ import com.bunshock.Bazar.model.RoleEnum;
 import com.bunshock.Bazar.model.UserEntity;
 import com.bunshock.Bazar.repository.IRoleRepository;
 import com.bunshock.Bazar.repository.IUserRepository;
+import jakarta.transaction.Transactional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +30,7 @@ public class UserService implements IUserService {
     }
     
     @Override
+    @Transactional
     public void registrarUser(RegisterUserDTO registroDTO) {
         
         // Verificamos que no exista otro usuario con el mismo username
@@ -52,6 +54,8 @@ public class UserService implements IUserService {
                 .roleSet(Set.of(userRole))
                 .cliente(cliente)
                 .build();
+        
+        cliente.setUsuario(user);
         
         userRepository.save(user);
     }

@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +26,8 @@ public class Cliente {
     // Decisión: No definimos @OneToMany del lado del Cliente
     
     // Puede haber clientes no registrados
-    @OneToOne(mappedBy = "cliente", optional = true)
+    @OneToOne(optional = true)
+    @JoinColumn(name = "users_id")
     private UserEntity usuario;
 
     public Cliente() {
