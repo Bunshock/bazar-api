@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IProductRepository extends JpaRepository<Product, Long> {
     
-    List<Product> findByCantidadDisponibleLessThan(Double cantidad);
+    List<Product> findByAmountAvailableLessThan(Double amount);
     
 }

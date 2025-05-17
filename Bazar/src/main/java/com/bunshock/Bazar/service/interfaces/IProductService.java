@@ -8,11 +8,11 @@ import java.util.List;
 public interface IProductService {
     
     // CRUD Producto
-    void saveCliente(ProductDTO datosProducto);
-    List<Product> getProductos();
-    Product getProductoById(Long id);
-    void deleteProducto(Long id);
-    Product editProducto(Long id, ProductDTO productoEditado);
+    void saveProduct(ProductDTO inputProduct);
+    List<Product> getProducts();
+    Product getProductByCode(Long product_code);
+    void deleteProduct(Long product_code);
+    Product editProduct(Long product_code, ProductDTO editedProduct);
     
     List<Product> getLowStockProducts();
     

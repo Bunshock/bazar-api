@@ -10,26 +10,26 @@ import lombok.Setter;
 @Getter @Setter
 public class ShowSaleDTO {
     
-    private Long codigo_venta;
-    private LocalDate fecha_venta;
-    private Double total;
-    private boolean realizada;
+    private Long saleCode;
+    private LocalDate saleDate;
+    private Double totalPrice;
+    private boolean finalized;
     
-    private List<SaleProductDTO> productosComprados;
+    private List<SaleProductDTO> productsBought;
     
-    private String dni_cliente;
+    private String clientDni;
 
     public ShowSaleDTO() {
     }
 
-    public ShowSaleDTO(Long codigo_venta, LocalDate fecha_venta, Double total,
-            boolean realizada, List<SaleProductDTO> productosComprados, String nombre_cliente) {
-        this.codigo_venta = codigo_venta;
-        this.fecha_venta = fecha_venta;
-        this.total = total;
-        this.realizada = realizada;
-        this.productosComprados = productosComprados;
-        this.dni_cliente = nombre_cliente;
+    public ShowSaleDTO(Long saleCode, LocalDate saleDate, Double totalPrice,
+            boolean finalized, List<SaleProductDTO> productsBought, String clientDni) {
+        this.saleCode = saleCode;
+        this.saleDate = saleDate;
+        this.totalPrice = totalPrice;
+        this.finalized = finalized;
+        this.productsBought = productsBought;
+        this.clientDni = clientDni;
     }
 
     

@@ -27,71 +27,71 @@ import com.bunshock.Bazar.exception.GlobalExceptionHandler;
 @PreAuthorize("hasRole('ADMIN')")
 public class ClientController {
     
-    private final IClientService clienteService;
-    private final GlobalExceptionHandler controllerUtils;
+    private final IClientService clientService;
+    private final GlobalExceptionHandler exceptionHandler;
 
     @Autowired
-    public ClientController(IClientService clienteService,
-            GlobalExceptionHandler controllerUtils) {
-        this.clienteService = clienteService;
-        this.controllerUtils = controllerUtils;
+    public ClientController(IClientService clientService,
+            GlobalExceptionHandler exceptionHandler) {
+        this.clientService = clientService;
+        this.exceptionHandler = exceptionHandler;
     }
     
     @PostMapping("/crear")
-    public ResponseEntity<?> crearCliente(@Validated(OnCreate.class) @RequestBody ClientDTO datosCliente,
+    public ResponseEntity<?> createClient(@Validated(OnCreate.class) @RequestBody ClientDTO inputClient,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
         
-        clienteService.saveCliente(datosCliente);
+        clientService.saveClient(inputClient);
         return new ResponseEntity<>("Cliente creado satisfactoriamente", HttpStatus.CREATED);
     }
     
     @GetMapping("")
-    public ResponseEntity<List<ClientDTO>> traerClientes() {
-        return new ResponseEntity<>(clienteService.getClientes(), HttpStatus.OK);
+    public ResponseEntity<List<ClientDTO>> getAllClients() {
+        return new ResponseEntity<>(clientService.getClients(), HttpStatus.OK);
     }
     
-    @GetMapping("/{id_cliente}")
-    public ResponseEntity<ClientDTO> traerClientePorId(@PathVariable Long id_cliente) {
-        return new ResponseEntity<>(clienteService.getClienteById(id_cliente),
+    @GetMapping("/{id_client}")
+    public ResponseEntity<ClientDTO> getOneClient(@PathVariable Long id_client) {
+        return new ResponseEntity<>(clientService.getClientById(id_client),
                 HttpStatus.OK);
     }
     
-    @DeleteMapping("/eliminar/{id_cliente}")
-    public ResponseEntity<String> borrarCliente(@PathVariable Long id_cliente) {
-        clienteService.deleteCliente(id_cliente);
+    @DeleteMapping("/eliminar/{id_client}")
+    public ResponseEntity<String> deleteClient(@PathVariable Long id_client) {
+        clientService.deleteClient(id_client);
         return new ResponseEntity<>("Cliente borrado exitosamente", HttpStatus.OK);
     }
     
-    @PutMapping("/editar/{id_cliente}")
-    public ResponseEntity<ClientDTO> editarCliente(@PathVariable Long id_cliente,
-            @Validated(OnUpdate.class) @RequestBody ClientDTO clienteEditado, BindingResult bindingResult) {
+    @PutMapping("/editar/{id_client}")
+    public ResponseEntity<ClientDTO> editClient(@PathVariable Long id_client,
+            @Validated(OnUpdate.class) @RequestBody ClientDTO editedClient, BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
         
-        return new ResponseEntity<>(clienteService.editCliente(id_cliente,
-                clienteEditado), HttpStatus.OK);
+        return new ResponseEntity<>(clientService.editClient(id_client, editedClient),
+                HttpStatus.OK);
     }
     
     @GetMapping("/mi-cliente")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClientDTO> traerMiCliente() {
-        return new ResponseEntity<>(clienteService.getMiCliente(), HttpStatus.OK);
+    public ResponseEntity<ClientDTO> getMyClient() {
+        return new ResponseEntity<>(clientService.getMyClient(), HttpStatus.OK);
     }
     
     @PutMapping("/editar/mi-cliente")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClientDTO> editarMiCliente(
-            @Validated(OnUpdate.class) @RequestBody ClientDTO clienteEditado,
+    public ResponseEntity<ClientDTO> editMyClient(
+            @Validated(OnUpdate.class) @RequestBody ClientDTO editedClient,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
 
-        return new ResponseEntity<>(clienteService.editarMiCliente(clienteEditado),
+        return new ResponseEntity<>(clientService.editMyClient(editedClient),
                 HttpStatus.OK);
     }
     

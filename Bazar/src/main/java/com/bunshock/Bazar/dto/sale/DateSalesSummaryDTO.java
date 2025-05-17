@@ -7,15 +7,15 @@ import lombok.Setter;
 @Getter @Setter
 public class DateSalesSummaryDTO {
     
-    private Double montoTotal;
-    private int cantidadVentas;
+    private Double totalPrice;
+    private int saleCount;
 
     public DateSalesSummaryDTO() {
     }
 
-    public DateSalesSummaryDTO(Double montoTotal, int cantidadVentas) {
-        this.montoTotal = montoTotal;
-        this.cantidadVentas = cantidadVentas;
+    public DateSalesSummaryDTO(Double totalPrice, int saleCount) {
+        this.totalPrice = totalPrice;
+        this.saleCount = saleCount;
     }    
     
 }

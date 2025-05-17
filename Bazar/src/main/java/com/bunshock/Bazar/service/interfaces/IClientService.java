@@ -7,14 +7,14 @@ import java.util.List;
 public interface IClientService {
     
     // CRUD Cliente
-    void saveCliente(ClientDTO datosCliente);
-    List<ClientDTO> getClientes();
-    ClientDTO getClienteById(Long id);
-    void deleteCliente(Long id);
-    ClientDTO editCliente(Long id, ClientDTO datosEditados);
+    void saveClient(ClientDTO inputClient);
+    List<ClientDTO> getClients();
+    ClientDTO getClientById(Long id_client);
+    void deleteClient(Long id_client);
+    ClientDTO editClient(Long id_client, ClientDTO editedClient);
     
     // Operaciones de USER
-    ClientDTO getMiCliente();
-    ClientDTO editarMiCliente(ClientDTO clienteEditado);
+    ClientDTO getMyClient();
+    ClientDTO editMyClient(ClientDTO editedClient);
     
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.IProductService;
 import com.bunshock.Bazar.exception.GlobalExceptionHandler;
+import jakarta.persistence.EntityNotFoundException;
 
 
 @RestController
@@ -28,59 +29,68 @@ import com.bunshock.Bazar.exception.GlobalExceptionHandler;
 @PreAuthorize("hasRole('ADMIN')")
 public class ProductController {
     
-    private final IProductService productoService;
-    private final GlobalExceptionHandler controllerUtils;
+    private final IProductService productService;
+    private final GlobalExceptionHandler exceptionHandler;
     
     @Autowired
-    public ProductController(IProductService productoService,
-            GlobalExceptionHandler controllerUtils) {
-        this.productoService = productoService;
-        this.controllerUtils = controllerUtils;
+    public ProductController(IProductService productService,
+            GlobalExceptionHandler exceptionHandler) {
+        this.productService = productService;
+        this.exceptionHandler = exceptionHandler;
     }
     
     @PostMapping("/crear")
-    public ResponseEntity<?> crearProducto(@Validated(OnCreate.class) @RequestBody ProductDTO datosProducto,
+    public ResponseEntity<?> createProduct(@Validated(OnCreate.class) @RequestBody ProductDTO inputProduct,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
         
-        productoService.saveCliente(datosProducto);
+        productService.saveProduct(inputProduct);
         return new ResponseEntity<>("Producto creado satisfactoriamente", HttpStatus.CREATED);
     }
     
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<List<Product>> traerProductos() {
-        return new ResponseEntity<>(productoService.getProductos(), HttpStatus.OK);
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return new ResponseEntity<>(productService.getProducts(), HttpStatus.OK);
     }
     
-    @GetMapping("/{codigo_producto}")
+    @GetMapping("/{product_code}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Product> traerProductoPorId(@PathVariable Long codigo_producto) {
-        return new ResponseEntity<>(productoService.getProductoById(codigo_producto),
+    public ResponseEntity<Product> getOneProduct(@PathVariable Long product_code) {
+        return new ResponseEntity<>(productService.getProductByCode(product_code),
                 HttpStatus.OK);
     }
     
-    @DeleteMapping("/eliminar/{codigo_producto}")
-    public ResponseEntity<String> borrarProducto(@PathVariable Long codigo_producto) {
+    @DeleteMapping("/eliminar/{product_code}")
+    public ResponseEntity<String> deleteProduct(@PathVariable Long product_code) {
+        productService.deleteProduct(product_code);
         return new ResponseEntity<>("Producto borrado exitosamente", HttpStatus.OK);
     }
     
-    @PutMapping("/editar/{codigo_producto}")
-    public ResponseEntity<Product> editarProducto(@PathVariable Long codigo_producto,
-            @Validated(OnUpdate.class) @RequestBody ProductDTO productoEditado, BindingResult bindingResult) {
+    @PutMapping("/editar/{product_code}")
+    public ResponseEntity<?> editProduct(@PathVariable Long product_code,
+            @Validated(OnUpdate.class) @RequestBody ProductDTO editedProduct, BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
         
-        return new ResponseEntity<>(productoService.editProducto(codigo_producto,
-                productoEditado), HttpStatus.OK);
+        Product product;
+        
+        try {
+            product = productService.editProduct(product_code, editedProduct);
+        } catch(EntityNotFoundException e) {
+            return new ResponseEntity<>("Error al editar producto: " + e.getMessage(),
+                    HttpStatus.BAD_REQUEST);
+        }
+        
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
     
     @GetMapping("/falta_stock")
-    public ResponseEntity<List<Product>> traerProductosFaltaStock() {
-        return new ResponseEntity<>(productoService.getLowStockProducts(), HttpStatus.OK);
+    public ResponseEntity<List<Product>> getLowStockProducts() {
+        return new ResponseEntity<>(productService.getLowStockProducts(), HttpStatus.OK);
     }
     
 }

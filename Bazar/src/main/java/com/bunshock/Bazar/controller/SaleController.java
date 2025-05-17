@@ -37,25 +37,24 @@ import com.bunshock.Bazar.exception.GlobalExceptionHandler;
 @PreAuthorize("hasRole('ADMIN')")
 public class SaleController {
     
-    private final ISaleService ventaService;
-    private final GlobalExceptionHandler controllerUtils;
+    private final ISaleService saleService;
+    private final GlobalExceptionHandler exceptionHandler;
     
     @Autowired
-    public SaleController(ISaleService ventaService, GlobalExceptionHandler controllerUtils) {
-        this.ventaService = ventaService;
-        this.controllerUtils = controllerUtils;
+    public SaleController(ISaleService saleService, GlobalExceptionHandler exceptionHandler) {
+        this.saleService = saleService;
+        this.exceptionHandler = exceptionHandler;
     }
     
     @PostMapping("/crear")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<String> crearVenta(@Validated(OnCreate.class) @RequestBody InputSaleDTO datosVenta,
-            BindingResult bindingResult, @RequestParam Long id_cliente) {
+    public ResponseEntity<String> createSale(@Validated(OnCreate.class) @RequestBody InputSaleDTO inputSale,
+            BindingResult bindingResult, @RequestParam Long id_client) {
         
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
         
         try {
-            ventaService.saveVenta(datosVenta, id_cliente);
+            saleService.saveSale(inputSale, id_client);
         }
         catch (EntityNotFoundException | IllegalArgumentException e) {
             return new ResponseEntity<>("Error al crear venta: " + e.getMessage(),
@@ -66,86 +65,86 @@ public class SaleController {
     }
     
     @GetMapping("")
-    public ResponseEntity<List<ShowSaleDTO>> traerVentas() {
-        return new ResponseEntity<>(ventaService.getVentas(), HttpStatus.OK);
+    public ResponseEntity<List<ShowSaleDTO>> getAllSales() {
+        return new ResponseEntity<>(saleService.getSales(), HttpStatus.OK);
     }
     
-    @GetMapping("/{codigo_venta}")
-    public ResponseEntity<ShowSaleDTO> traerVentaPorId(@PathVariable Long codigo_venta) {
-        return new ResponseEntity<>(ventaService.getVentaById(codigo_venta),
+    @GetMapping("/{sale_code}")
+    public ResponseEntity<ShowSaleDTO> getOneSale(@PathVariable Long sale_code) {
+        return new ResponseEntity<>(saleService.getSaleById(sale_code),
                 HttpStatus.OK);
     }
     
-    @DeleteMapping("/eliminar/{codigo_venta}")
-    public ResponseEntity<String> borrarVenta(@PathVariable Long codigo_venta) {
-        ventaService.deleteVenta(codigo_venta);
+    @DeleteMapping("/eliminar/{sale_code}")
+    public ResponseEntity<String> deleteSale(@PathVariable Long sale_code) {
+        saleService.deleteSale(sale_code);
         return new ResponseEntity<>("Venta borrada exitosamente", HttpStatus.OK);
     }
     
-    @PutMapping("/editar/{codigo_venta}")
-    public ResponseEntity<?> editarVenta(@PathVariable Long codigo_venta,
-            @Validated(OnUpdate.class) @RequestBody InputSaleDTO productoEditado,
-            BindingResult bindingResult, @RequestParam Long id_cliente) {
+    @PutMapping("/editar/{sale_code}")
+    public ResponseEntity<?> editSale(@PathVariable Long sale_code,
+            @Validated(OnUpdate.class) @RequestBody InputSaleDTO editedSale,
+            BindingResult bindingResult, @RequestParam Long id_client) {
         
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
         
-        ShowSaleDTO ventaEditada;
+        ShowSaleDTO editedSaleDTO;
         
         try {
-            ventaEditada = ventaService.editVenta(codigo_venta, productoEditado, id_cliente);
+            editedSaleDTO = saleService.editSale(sale_code, editedSale, id_client);
         }
         catch (EntityNotFoundException e) {
             return new ResponseEntity<>("Error al editar venta: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }
         
-        return new ResponseEntity<>(ventaEditada, HttpStatus.OK);
+        return new ResponseEntity<>(editedSaleDTO, HttpStatus.OK);
     }
     
-    @GetMapping("/productos/{codigo_venta}")
-    public ResponseEntity<List<Product>> traerProductosDeVenta(@PathVariable Long codigo_venta) {
-        return new ResponseEntity<>(ventaService.getVentaProductos(codigo_venta),
+    @GetMapping("/productos/{sale_code}")
+    public ResponseEntity<List<Product>> getSaleProductList(@PathVariable Long sale_code) {
+        return new ResponseEntity<>(saleService.getSaleProducts(sale_code),
                 HttpStatus.OK);
     }
     
-    // Decisión: Para no tener definiciones ambiguas con el metodo traerVentaPorId,
+    // Decisión: Para no tener definiciones ambiguas con el metodo getOneSale,
     // agregamos a la ruta el prefijo /resumen
-    @GetMapping("/resumen/{fecha_venta}")
-    public ResponseEntity<DateSalesSummaryDTO> traerResumenVentasPorFecha(
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_venta) {
-        return new ResponseEntity<>(ventaService.getVentaResumeByDate(fecha_venta),
+    @GetMapping("/resumen/{sale_date}")
+    public ResponseEntity<DateSalesSummaryDTO> getSalesSummaryByDate(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sale_date) {
+        return new ResponseEntity<>(saleService.getSaleSummaryByDate(sale_date),
                 HttpStatus.OK);
     }
     
     @GetMapping("/mayor_venta")
-    public ResponseEntity<HighestSaleDTO> traerMayorVenta() {
-        Sale mayorVenta = ventaService.getHighestTotalVenta();
+    public ResponseEntity<HighestSaleDTO> getHighestSale() {
+        Sale highestSale = saleService.getHighestTotalSale();
         
         return new ResponseEntity<>(new HighestSaleDTO(
-                mayorVenta.getCodigoVenta(),
-                mayorVenta.getTotal(),
-                mayorVenta.getListaProductos().size(),
-                mayorVenta.getUnCliente().getNombre(),
-                mayorVenta.getUnCliente().getApellido()
+                highestSale.getSaleCode(),
+                highestSale.getTotalPrice(),
+                highestSale.getProductList().size(),
+                highestSale.getClient().getFirstName(),
+                highestSale.getClient().getLastName()
         ), HttpStatus.OK);
     }
     
-    @PutMapping("/concretar/{codigo_venta}")
-    public ResponseEntity<String> concretarVentaPendiente(@PathVariable Long codigo_venta) {
-        ventaService.concretarVenta(codigo_venta);
-        return new ResponseEntity<>("Venta (" + codigo_venta + ") concretada", HttpStatus.OK);
+    @PutMapping("/concretar/{sale_code}")
+    public ResponseEntity<String> finalizePendingSale(@PathVariable Long sale_code) {
+        saleService.finalizeSale(sale_code);
+        return new ResponseEntity<>("Venta (" + sale_code + ") concretada", HttpStatus.OK);
     }
     
     @PostMapping("/mis-ventas/crear")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> crearMiVenta(@Validated(OnCreate.class) @RequestBody InputSaleDTO datosVenta,
+    public ResponseEntity<String> createMySale(@Validated(OnCreate.class) @RequestBody InputSaleDTO inputSale,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors())
-            return controllerUtils.handleValidationErrors(bindingResult);
+            return exceptionHandler.handleValidationErrors(bindingResult);
         
         try {
-            ventaService.saveMiVenta(datosVenta);
+            saleService.saveMySale(inputSale);
         }
         catch (EntityNotFoundException | UsernameNotFoundException e) {
             return new ResponseEntity<>("Error al crear venta: " + e.getMessage(),
@@ -157,31 +156,31 @@ public class SaleController {
     
     @GetMapping("/mis-ventas")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ShowSaleDTO>> traerMisVentas() {
-        return new ResponseEntity<>(ventaService.getMisVentas(), HttpStatus.OK);
+    public ResponseEntity<List<ShowSaleDTO>> getMySales() {
+        return new ResponseEntity<>(saleService.getMySales(), HttpStatus.OK);
     }
     
-    @GetMapping("/mis-ventas/{codigo_venta}")
+    @GetMapping("/mis-ventas/{sale_code}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> traerMiVentaPorId(@PathVariable Long codigo_venta) {
-        ShowSaleDTO miVenta;
+    public ResponseEntity<?> getMySaleById(@PathVariable Long sale_code) {
+        ShowSaleDTO mySale;
         
         try {
-            miVenta = ventaService.getMiVentaById(codigo_venta);
+            mySale = saleService.getMySaleById(sale_code);
         } catch(UsernameNotFoundException | EntityNotFoundException e) {
             return new ResponseEntity<>("Error al obtener venta: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }
         
-        return new ResponseEntity<>(miVenta, HttpStatus.OK);
+        return new ResponseEntity<>(mySale, HttpStatus.OK);
     }
     
-    @DeleteMapping("/mis-ventas/eliminar/{codigo_venta}")
+    @DeleteMapping("/mis-ventas/eliminar/{sale_code}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> borrarMiVenta(@PathVariable Long codigo_venta) {
+    public ResponseEntity<String> deleteMySale(@PathVariable Long sale_code) {
         
         try {
-            ventaService.deleteMiVenta(codigo_venta);
+            saleService.deleteMySale(sale_code);
         } catch(UsernameNotFoundException | EntityNotFoundException e) {
             return new ResponseEntity<>("Error al borrar venta: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);

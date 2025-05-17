@@ -8,24 +8,24 @@ import lombok.Setter;
 public class HighestSaleDTO {
     
     // Datos de Venta
-    private Long codigo_venta;
-    private Double total;
-    private int cantidad_productos;
+    private Long saleCode;
+    private Double totalPrice;
+    private int productCount;
     
     // Datos de Cliente
-    private String nombre_cliente;
-    private String apellido_cliente;
+    private String clientFirstName;
+    private String clientLastName;
 
     public HighestSaleDTO() {
     }
 
-    public HighestSaleDTO(Long codigo_venta, Double total, int cantidad_productos,
-            String nombre_cliente, String apellido_cliente) {
-        this.codigo_venta = codigo_venta;
-        this.total = total;
-        this.cantidad_productos = cantidad_productos;
-        this.nombre_cliente = nombre_cliente;
-        this.apellido_cliente = apellido_cliente;
+    public HighestSaleDTO(Long saleCode, Double totalPrice, int productCount,
+            String clientFirstName, String clientLastName) {
+        this.saleCode = saleCode;
+        this.totalPrice = totalPrice;
+        this.productCount = productCount;
+        this.clientFirstName = clientFirstName;
+        this.clientLastName = clientLastName;
     }
     
 }

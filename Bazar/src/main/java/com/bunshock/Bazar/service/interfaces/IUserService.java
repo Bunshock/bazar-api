@@ -5,6 +5,6 @@ import com.bunshock.Bazar.dto.auth.RegisterUserDTO;
 
 public interface IUserService {
     
-    void registrarUser(RegisterUserDTO registroDTO);
+    void registerUser(RegisterUserDTO inputUser);
     
 }

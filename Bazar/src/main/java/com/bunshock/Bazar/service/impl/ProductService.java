@@ -7,64 +7,67 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.bunshock.Bazar.repository.IProductRepository;
 import com.bunshock.Bazar.service.interfaces.IProductService;
+import jakarta.persistence.EntityNotFoundException;
 
 
 @Service
 public class ProductService implements IProductService {
     
-    private final IProductRepository productoRepository;
+    private final IProductRepository productRepository;
 
     @Autowired
-    public ProductService(IProductRepository productoRepository) {
-        this.productoRepository = productoRepository;
+    public ProductService(IProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     @Override
-    public void saveCliente(ProductDTO datosProducto) {
-        Product producto = new Product();
+    public void saveProduct(ProductDTO inputProduct) {
+        Product product = new Product();
         
-        producto.setNombre(datosProducto.getNombre());
-        producto.setMarca(datosProducto.getMarca());
-        producto.setCosto(datosProducto.getCosto());
-        producto.setCantidadDisponible(datosProducto.getCantidadDisponible());
+        product.setName(inputProduct.getName());
+        product.setBrand(inputProduct.getBrand());
+        product.setPrice(inputProduct.getPrice());
+        product.setAmountAvailable(inputProduct.getAmountAvailable());
         
-        productoRepository.save(producto);
+        productRepository.save(product);
     }
 
     @Override
-    public List<Product> getProductos() {
-        return productoRepository.findAll();
+    public List<Product> getProducts() {
+        return productRepository.findAll();
     }
 
     @Override
-    public Product getProductoById(Long id) {
-        return productoRepository.findById(id).orElse(null);
+    public Product getProductByCode(Long product_code) {
+        return productRepository.findById(product_code)
+                .orElseThrow(() -> new EntityNotFoundException("No se"
+                        + " encontró producto con código: " + product_code));
     }
 
     @Override
-    public void deleteProducto(Long id) {
-        productoRepository.deleteById(id);
+    public void deleteProduct(Long product_code) {
+        productRepository.deleteById(product_code);
     }
 
     @Override
-    public Product editProducto(Long id, ProductDTO productoEditado) {
-        Product producto = this.getProductoById(id);
+    public Product editProduct(Long product_code, ProductDTO editedProduct) {
+        Product product = this.getProductByCode(product_code);
         
-        if (productoEditado.getNombre() != null)
-            producto.setNombre(productoEditado.getNombre());
-        if (productoEditado.getMarca()!= null)
-            producto.setMarca(productoEditado.getMarca());
-        if (productoEditado.getCosto()!= null)
-            producto.setCosto(productoEditado.getCosto());
-        if (productoEditado.getCantidadDisponible()!= null)
-            producto.setCantidadDisponible(productoEditado.getCantidadDisponible());
+        if (editedProduct.getName() != null)
+            product.setName(editedProduct.getName());
+        if (editedProduct.getBrand()!= null)
+            product.setBrand(editedProduct.getBrand());
+        if (editedProduct.getPrice()!= null)
+            product.setPrice(editedProduct.getPrice());
+        if (editedProduct.getAmountAvailable()!= null)
+            product.setAmountAvailable(editedProduct.getAmountAvailable());
         
-        return productoRepository.save(producto);
+        return productRepository.save(product);
     }
 
     @Override
     public List<Product> getLowStockProducts() {
-        return productoRepository.findByCantidadDisponibleLessThan(5.0);
+        return productRepository.findByAmountAvailableLessThan(5.0);
     }
     
 }

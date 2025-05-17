@@ -8,18 +8,18 @@ import lombok.Setter;
 public class SaleProductDTO {
     
     private String name;
-    private String marca;
-    private Double costo;
-    private Double cantidadComprada;
+    private String brand;
+    private Double price;
+    private Double amountBought;
 
     public SaleProductDTO() {
     }
 
-    public SaleProductDTO(String name, String marca, Double costo, Double cantidadComprada) {
+    public SaleProductDTO(String name, String brand, Double price, Double amountBought) {
         this.name = name;
-        this.marca = marca;
-        this.costo = costo;
-        this.cantidadComprada = cantidadComprada;
+        this.brand = brand;
+        this.price = price;
+        this.amountBought = amountBought;
     }
     
 }

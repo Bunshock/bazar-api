@@ -18,36 +18,36 @@ import com.bunshock.Bazar.service.interfaces.IClientService;
 @Service
 public class ClientService implements IClientService {
     
-    private final IClientRepository clienteRepository;
+    private final IClientRepository clientRepository;
     private final IUserRepository userRepository;
 
     @Autowired
-    public ClientService(IClientRepository clienteRepository,
+    public ClientService(IClientRepository clientRepository,
             IUserRepository userRepository) {
-        this.clienteRepository = clienteRepository;
+        this.clientRepository = clientRepository;
         this.userRepository = userRepository;
     }    
 
     @Override
-    public void saveCliente(ClientDTO datosCliente) {
-        Client cliente = new Client();
+    public void saveClient(ClientDTO inputClient) {
+        Client client = new Client();
         
-        cliente.setNombre(datosCliente.getNombre());
-        cliente.setApellido(datosCliente.getApellido());
-        cliente.setDni(datosCliente.getDni());
+        client.setFirstName(inputClient.getFirstName());
+        client.setLastName(inputClient.getLastName());
+        client.setDni(inputClient.getDni());
         
-        clienteRepository.save(cliente);
+        clientRepository.save(client);
     }
 
     @Override
-    public List<ClientDTO> getClientes() {
-        List<Client> listaClientes = clienteRepository.findAll();
+    public List<ClientDTO> getClients() {
+        List<Client> clientList = clientRepository.findAll();
         
-        return listaClientes.stream()
+        return clientList.stream()
                 .map(cliente -> {
                     return new ClientDTO(
-                            cliente.getNombre(),
-                            cliente.getApellido(),
+                            cliente.getFirstName(),
+                            cliente.getLastName(),
                             cliente.getDni()
                     );
                 })
@@ -55,87 +55,87 @@ public class ClientService implements IClientService {
     }
 
     @Override
-    public ClientDTO getClienteById(Long id) {
-        Client cliente = clienteRepository.findById(id)
+    public ClientDTO getClientById(Long id_client) {
+        Client client = clientRepository.findById(id_client)
                 .orElseThrow(() -> new EntityNotFoundException("El usuario con "
-                        + "id (" + id + ") no fue encontrado"));
+                        + "id (" + id_client + ") no fue encontrado"));
         
         return new ClientDTO(
-                cliente.getNombre(),
-                cliente.getApellido(),
-                cliente.getDni()
+                client.getFirstName(),
+                client.getLastName(),
+                client.getDni()
         );
     }
 
     @Override
-    public void deleteCliente(Long id) {
-        clienteRepository.deleteById(id);
+    public void deleteClient(Long id_client) {
+        clientRepository.deleteById(id_client);
     }
 
     @Override
-    public ClientDTO editCliente(Long id, ClientDTO clienteEditado) {
-        Client cliente = clienteRepository.findById(id)
+    public ClientDTO editClient(Long id_client, ClientDTO editedClient) {
+        Client client = clientRepository.findById(id_client)
                 .orElseThrow(() -> new EntityNotFoundException("El usuario con "
-                        + "id (" + id + ") no fue encontrado"));
+                        + "id (" + id_client + ") no fue encontrado"));
         
-        if (clienteEditado.getNombre() != null)
-            cliente.setNombre(clienteEditado.getNombre());
-        if (clienteEditado.getApellido() != null)
-            cliente.setApellido(clienteEditado.getApellido());
-        if (clienteEditado.getDni() != null)
-            cliente.setDni(clienteEditado.getDni());
+        if (editedClient.getFirstName() != null)
+            client.setFirstName(editedClient.getFirstName());
+        if (editedClient.getLastName() != null)
+            client.setLastName(editedClient.getLastName());
+        if (editedClient.getDni() != null)
+            client.setDni(editedClient.getDni());
         
-        cliente = clienteRepository.save(cliente);
+        client = clientRepository.save(client);
         
         return new ClientDTO(
-                cliente.getNombre(),
-                cliente.getApellido(),
-                cliente.getDni()
+                client.getFirstName(),
+                client.getLastName(),
+                client.getDni()
         );
     }
 
     @Override
-    public ClientDTO getMiCliente() {
+    public ClientDTO getMyClient() {
         // Obtenemos el usuario relacionado al cliente logueado
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        Client cliente = clienteRepository.findById(user.getCliente().getIdCliente())
+        Client client = clientRepository.findById(user.getCliente().getIdClient())
                 .orElseThrow(() -> new EntityNotFoundException("El usuario con "
                         + "username (" + username + ") no tiene cliente asociado"));
         
         return new ClientDTO(
-                cliente.getNombre(),
-                cliente.getApellido(),
-                cliente.getDni()
+                client.getFirstName(),
+                client.getLastName(),
+                client.getDni()
         );
     }
     
     @Override
-    public ClientDTO editarMiCliente(ClientDTO clienteEditado) {
+    public ClientDTO editMyClient(ClientDTO editedClient) {
         // Obtenemos el usuario relacionado al cliente logueado
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        Client cliente = user.getCliente();
+        Client client = user.getCliente();
         
-        if (clienteEditado.getNombre() != null)
-            cliente.setNombre(clienteEditado.getNombre());
-        if (clienteEditado.getApellido() != null)
-            cliente.setApellido(clienteEditado.getApellido());
-        if (clienteEditado.getDni() != null)
-            cliente.setDni(clienteEditado.getDni());
+        if (editedClient.getFirstName() != null)
+            client.setFirstName(editedClient.getFirstName());
+        if (editedClient.getLastName() != null)
+            client.setLastName(editedClient.getLastName());
+        if (editedClient.getDni() != null)
+            client.setDni(editedClient.getDni());
         
-        cliente = clienteRepository.save(cliente);
+        client = clientRepository.save(client);
         
         return new ClientDTO(
-                cliente.getNombre(),
-                cliente.getApellido(),
-                cliente.getDni()
+                client.getFirstName(),
+                client.getLastName(),
+                client.getDni()
         );
     }
     

@@ -15,18 +15,18 @@ public interface ISaleRepository extends JpaRepository<Sale, Long> {
     // Traer la suma de totales y la cantidad de ventas de una determinada fecha.
     // La query devuelve una lista de Object[], donde el primer elemento es un
     // array con los datos que necesito.
-    @Query("SELECT SUM(v.total), COUNT(v) FROM Venta v WHERE v.fecha_venta = :fecha")
-    List<Object[]> getResumeByDate(LocalDate fecha);
+    @Query("SELECT SUM(s.totalPrice), COUNT(s) FROM Sale s WHERE s.saleDate = :date")
+    List<Object[]> getSummaryByDate(LocalDate date);
     
     // Traer la venta con mayor monto
-    Sale findTopByOrderByTotalDesc();
+    Sale findTopByOrderByTotalPriceDesc();
     // Otra opción sería usar la Query:
     // @Query("SELECT v FROM Venta v WHERE v.total = (SELECT MAX(v2.total) FROM Venta v2)")
     // pero estaría devolviendo todas las ventas con el monto máximo. Yo sólo quiero una
     
     // Traer las ventas de determinado usuario
-    List<Sale> findByUnCliente_IdCliente(Long id);
+    List<Sale> findByClient_IdClient(Long id_client);
     
-    Optional<Sale> findByUnCliente_IdClienteAndCodigoVenta(Long id_cliente, Long codigo_venta);
+    Optional<Sale> findByClient_IdClientAndSaleCode(Long id_client, Long sale_code);
     
 }

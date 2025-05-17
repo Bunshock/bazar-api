@@ -16,11 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    
+
     private final AuthenticationManager authManager;
     private final JwtProvider jwtProvider;
     private final IUserService userService;
@@ -32,20 +31,20 @@ public class AuthController {
         this.jwtProvider = jwtProvider;
         this.userService = userService;
     }
-    
+
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterUserDTO registerDTO) {
-        
+
         try {
-            userService.registrarUser(registerDTO);
-        } catch(RuntimeException e) {
+            userService.registerUser(registerDTO);
+        } catch (RuntimeException e) {
             return new ResponseEntity<>("Error al crear nuevo usuario: " + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }
-        
+
         return new ResponseEntity<>("Usuario registrado correctamente", HttpStatus.CREATED);
     }
-    
+
     // Obtengo credenciales de login, y devuevlo un token al cliente (que deberá
     // usar en futuras requests)
     @PostMapping("/login")
@@ -56,9 +55,9 @@ public class AuthController {
                         loginDTO.getPassword()
                 )
         );
-        
+
         String token = jwtProvider.generateToken(auth);
         return new ResponseEntity<>(new JwtResponseDTO(token), HttpStatus.OK);
     }
-    
+
 }

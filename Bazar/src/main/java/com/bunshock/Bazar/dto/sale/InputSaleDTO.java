@@ -20,25 +20,24 @@ public class InputSaleDTO {
     @PastOrPresent(message = "La fecha de venta no debe ser en el futuro",
             groups = {OnCreate.class, OnUpdate.class})
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate fecha_venta;
+    private LocalDate saleDate;
     
     @NotNull(message = "El total no puede ser nulo", groups = OnCreate.class)
     @Positive(message = "El total debe ser un valor numérico positivo",
             groups = {OnCreate.class, OnUpdate.class})
-    private Double total;
+    private Double totalPrice;
     
     @NotEmpty(message = "La lista de productos de la venta no puede ser nula o"
             + " vacía", groups = {OnCreate.class})
-    private List<Long> listaIdProductos;
+    private List<Long> productCodeList;
 
     public InputSaleDTO() {
     }
 
-    public InputSaleDTO(LocalDate fecha_venta, Double total, List<Long> listaIdProductos,
-            Long idCliente) {
-        this.fecha_venta = fecha_venta;
-        this.total = total;
-        this.listaIdProductos = listaIdProductos;
+    public InputSaleDTO(LocalDate saleDate, Double totalPrice, List<Long> productCodeList) {
+        this.saleDate = saleDate;
+        this.totalPrice = totalPrice;
+        this.productCodeList = productCodeList;
     }
     
 }

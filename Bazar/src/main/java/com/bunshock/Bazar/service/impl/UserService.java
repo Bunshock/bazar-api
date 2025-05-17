@@ -32,31 +32,31 @@ public class UserService implements IUserService {
     
     @Override
     @Transactional
-    public void registrarUser(RegisterUserDTO registroDTO) {
+    public void registerUser(RegisterUserDTO inputUser) {
         
         // Verificamos que no exista otro usuario con el mismo username
-        if (userRepository.findByUsername(registroDTO.getUsername()).isPresent())
+        if (userRepository.findByUsername(inputUser.getUsername()).isPresent())
             throw new RuntimeException("El usuario ya existe");
         
         // Verificamos que el rol 'USER' este correctamente almacenado
         RoleEntity userRole = roleRepository.findByRoleEnum(RoleEnum.USER)
                 .orElseThrow(() -> new RuntimeException("El rol 'USER' no fue encontrado"));
         
-        Client cliente = new Client();
+        Client client = new Client();
         
         // Creamos y guardamos el nuevo usuario
         UserEntity user = UserEntity.builder()
-                .username(registroDTO.getUsername())
-                .password(passwordEncoder.encode(registroDTO.getPassword()))
+                .username(inputUser.getUsername())
+                .password(passwordEncoder.encode(inputUser.getPassword()))
                 .isEnabled(true)
                 .accountNonExpired(true)
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
                 .roleSet(Set.of(userRole))
-                .cliente(cliente)
+                .cliente(client)
                 .build();
         
-        cliente.setUsuario(user);
+        client.setUser(user);
         
         userRepository.save(user);
     }

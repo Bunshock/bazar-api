@@ -7,20 +7,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 
 @Entity
 @Getter @Setter
+@Table(name = "clients")
 public class Client {
     
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    @Column(name = "id_cliente")
-    private Long idCliente;
-    private String nombre;
-    private String apellido;
+    @Column(name = "id_client")
+    private Long idClient;
+    private String firstName;
+    private String lastName;
     private String dni;
     // Sería de utilidad que el cliente sepa cuales fueron sus ventas? No tanto:
     // si queremos saber las ventas de un cliente, consultamos la entidad Venta
@@ -30,18 +32,18 @@ public class Client {
     // Puede haber clientes no registrados
     @OneToOne(optional = true)
     @JoinColumn(name = "users_id")
-    private UserEntity usuario;
+    private UserEntity user;
 
     public Client() {
     }
 
-    public Client(Long idCliente, String nombre, String apellido, String dni,
-            UserEntity usuario) {
-        this.idCliente = idCliente;
-        this.nombre = nombre;
-        this.apellido = apellido;
+    public Client(Long idClient, String firstName, String lastName, String dni,
+            UserEntity user) {
+        this.idClient = idClient;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.dni = dni;
-        this.usuario = usuario;
+        this.user = user;
     }
     
 }

@@ -12,24 +12,24 @@ import java.util.List;
 public interface ISaleService {
     
     // CRUD Venta
-    void saveVenta(InputSaleDTO datosVenta, Long id_cliente);
-    List<ShowSaleDTO> getVentas();
-    ShowSaleDTO getVentaById(Long codigo_venta);
-    void deleteVenta(Long codigo_venta);
-    ShowSaleDTO editVenta(Long codigo_venta, InputSaleDTO ventaEditada, Long id_cliente);
+    void saveSale(InputSaleDTO inputSale, Long id_client);
+    List<ShowSaleDTO> getSales();
+    ShowSaleDTO getSaleById(Long sale_code);
+    void deleteSale(Long sale_code);
+    ShowSaleDTO editSale(Long sale_code, InputSaleDTO editedSale, Long id_client);
     
-    List<Product> getVentaProductos(Long codigo_venta);
-    DateSalesSummaryDTO getVentaResumeByDate(LocalDate fecha);
-    Sale getHighestTotalVenta();
+    List<Product> getSaleProducts(Long sale_code);
+    DateSalesSummaryDTO getSaleSummaryByDate(LocalDate date);
+    Sale getHighestTotalSale();
     
-    // Descontar productos del stock y finalizar venta. NOTAR: No es necesario
-    // tener el stock disponible al momento de crear una venta. Sólo al momento de 
-    // concretarla
-    void concretarVenta(Long codigo_venta);
+    // Finalizar una venta: descontar productos del stock y finalizar venta.
+    // NOTAR: No es necesario tener el stock disponible al momento de crear una venta.
+    // Sólo al momento de concretarla
+    void finalizeSale(Long sale_code);
     
-    void saveMiVenta(InputSaleDTO datosVenta);
-    List<ShowSaleDTO> getMisVentas();
-    ShowSaleDTO getMiVentaById(Long codigo_venta);
-    void deleteMiVenta(Long codigo_venta);
+    void saveMySale(InputSaleDTO inputSale);
+    List<ShowSaleDTO> getMySales();
+    ShowSaleDTO getMySaleById(Long sale_code);
+    void deleteMySale(Long sale_code);
     
 }

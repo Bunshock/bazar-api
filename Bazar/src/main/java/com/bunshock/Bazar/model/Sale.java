@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Getter;
@@ -17,39 +18,42 @@ import lombok.Setter;
 
 @Entity
 @Getter @Setter
+@Table(name = "sales")
 public class Sale {
     
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    @Column(name = "codigo_venta")
-    private Long codigoVenta;
-    private LocalDate fecha_venta;
-    private Double total;
-    private boolean realizada;
+    @Column(name = "sale_code")
+    private Long saleCode;
+    @Column(name = "sale_date")
+    private LocalDate saleDate;
+    @Column(name = "total_price")
+    private Double totalPrice;
+    private boolean finalized;
     // Relación con Producto. Definimos la tabla de union.
     @ManyToMany
     @JoinTable(
-            name = "venta_producto",
-            joinColumns = @JoinColumn(name="venta_codigo_venta"),
-            inverseJoinColumns = @JoinColumn(name="producto_codigo_producto")
+            name = "sale_product",
+            joinColumns = @JoinColumn(name = "sales_sale_code"),
+            inverseJoinColumns = @JoinColumn(name = "products_product_code")
     )
-    private List<Product> listaProductos;
+    private List<Product> productList;
     // Relación con Cliente
     @ManyToOne
-    @JoinColumn(name = "cliente_id_cliente")
-    private Client unCliente;
+    @JoinColumn(name = "clients_id_client")
+    private Client client;
 
     public Sale() {
     }
 
-    public Sale(Long codigoVenta, LocalDate fecha_venta, Double total,
-            List<Product> listaProductos, Client unCliente) {
-        this.codigoVenta = codigoVenta;
-        this.fecha_venta = fecha_venta;
-        this.realizada = false;
-        this.total = total;
-        this.listaProductos = listaProductos;
-        this.unCliente = unCliente;
+    public Sale(Long saleCode, LocalDate saleDate, Double totalPrice,
+            List<Product> productList, Client client) {
+        this.saleCode = saleCode;
+        this.saleDate = saleDate;
+        this.totalPrice = totalPrice;
+        this.finalized = false;
+        this.productList = productList;
+        this.client = client;
     }
     
 }

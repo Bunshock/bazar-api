@@ -15,31 +15,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class SaleMapper {
 
-    public ShowSaleDTO SaleToShowSaleDTO(Sale venta) {
+    public ShowSaleDTO SaleToShowSaleDTO(Sale sale) {
         
         // Como muestro la cantidad de cada producto comprado, elimino duplicados
-        Set<Product> productosUnicos = new HashSet<>(venta.getListaProductos());
+        Set<Product> productosUnicos = new HashSet<>(sale.getProductList());
 
         // Para mostrar la cantidad de cada producto, necesito contar
-        Map<Long, Long> cantidadesPorId = venta.getListaProductos().stream()
-                .map(producto -> producto.getCodigo_producto())
+        Map<Long, Long> cantidadesPorId = sale.getProductList().stream()
+                .map(producto -> producto.getProductCode())
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         
         return new ShowSaleDTO(
-                venta.getCodigoVenta(),
-                venta.getFecha_venta(),
-                venta.getTotal(),
-                venta.isRealizada(),
+                sale.getSaleCode(),
+                sale.getSaleDate(),
+                sale.getTotalPrice(),
+                sale.isFinalized(),
                 productosUnicos.stream()
                         .map(producto -> new SaleProductDTO(
-                                producto.getNombre(),
-                                producto.getMarca(),
-                                producto.getCosto(),
-                                (Double) cantidadesPorId.get(producto.getCodigo_producto())
+                                producto.getName(),
+                                producto.getBrand(),
+                                producto.getPrice(),
+                                (Double) cantidadesPorId.get(producto.getProductCode())
                                         .doubleValue()
                         ))
                         .collect(Collectors.toList()),
-                venta.getUnCliente().getDni()
+                sale.getClient().getDni()
         );
     }
     
