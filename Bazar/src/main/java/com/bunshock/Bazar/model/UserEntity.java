@@ -57,6 +57,6 @@ public class UserEntity {
     // Relación con Cliente. Al crear un usuario, se crea un Cliente vacio
     // asociado al usuario. Puede haber usuarios sin cliente asociado (como 'admin')
     @OneToOne(mappedBy = "user", optional = true, cascade = CascadeType.ALL)
-    private Client cliente;
+    private Client client;
 
 }

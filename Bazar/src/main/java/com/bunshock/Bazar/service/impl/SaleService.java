@@ -33,17 +33,15 @@ public class SaleService implements ISaleService {
     private final IProductRepository productRepository;
     private final IClientRepository clientRepository;
     private final IUserRepository userRepository;
-    private final SaleMapper saleMapper;
     
     @Autowired
     public SaleService(ISaleRepository saleRepository,
             IProductRepository productRepository, IClientRepository clientRepository,
-            IUserRepository userRepository, SaleMapper saleMapper) {
+            IUserRepository userRepository) {
         this.saleRepository = saleRepository;
         this.productRepository = productRepository;
         this.clientRepository = clientRepository;
         this.userRepository = userRepository;
-        this.saleMapper = saleMapper;
     }
     
     // Infiero el precio total de venta basado en la lista de productos
@@ -87,7 +85,7 @@ public class SaleService implements ISaleService {
         List<Sale> saleList = saleRepository.findAll();
         
         return saleList.stream()
-                .map(venta -> saleMapper.SaleToShowSaleDTO(venta))
+                .map(venta -> SaleMapper.SaleToShowSaleDTO(venta))
                 .collect(Collectors.toList());
     }
 
@@ -97,7 +95,7 @@ public class SaleService implements ISaleService {
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
                         + "código (" + sale_code + ") no fue encontrada"));
         
-        return saleMapper.SaleToShowSaleDTO(sale);
+        return SaleMapper.SaleToShowSaleDTO(sale);
     }
 
     @Override
@@ -130,7 +128,7 @@ public class SaleService implements ISaleService {
         
         saleRepository.save(sale);
         
-        return saleMapper.SaleToShowSaleDTO(sale);
+        return SaleMapper.SaleToShowSaleDTO(sale);
     }
 
     @Override
@@ -217,7 +215,7 @@ public class SaleService implements ISaleService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
-        mySale.setClient(user.getCliente());
+        mySale.setClient(user.getClient());
         
         mySale.setSaleDate(inputSale.getSaleDate());
 
@@ -245,10 +243,10 @@ public class SaleService implements ISaleService {
                         + "username (" + username + ") no existe"));
         
         List<Sale> mySaleList = saleRepository.findByClient_IdClient(
-                user.getCliente().getIdClient());
+                user.getClient().getIdClient());
         
         return mySaleList.stream()
-                .map(sale -> saleMapper.SaleToShowSaleDTO(sale))
+                .map(sale -> SaleMapper.SaleToShowSaleDTO(sale))
                 .collect(Collectors.toList());
     }
 
@@ -261,12 +259,12 @@ public class SaleService implements ISaleService {
                         + "username (" + username + ") no existe"));
         
         Sale sale = saleRepository
-                .findByClient_IdClientAndSaleCode(user.getCliente().getIdClient(), sale_code)
+                .findByClient_IdClientAndSaleCode(user.getClient().getIdClient(), sale_code)
                 .orElseThrow(() -> new EntityNotFoundException("El cliente con id ("
-                        + user.getCliente().getIdClient() + ") no tiene asociado "
+                        + user.getClient().getIdClient() + ") no tiene asociado "
                                 + "una venta con código: " + sale_code));
         
-        return saleMapper.SaleToShowSaleDTO(sale);
+        return SaleMapper.SaleToShowSaleDTO(sale);
     }
 
     @Override
@@ -279,9 +277,9 @@ public class SaleService implements ISaleService {
         
         // Verificamos que la venta indicada corresponda al cliente del usuario logueado
         Sale sale = saleRepository
-                .findByClient_IdClientAndSaleCode(user.getCliente().getIdClient(), sale_code)
+                .findByClient_IdClientAndSaleCode(user.getClient().getIdClient(), sale_code)
                 .orElseThrow(() -> new EntityNotFoundException("El cliente con id (" 
-                        + user.getCliente().getIdClient() + ") no tiene asociado "
+                        + user.getClient().getIdClient() + ") no tiene asociado "
                                 + "una venta con código: " + sale_code));
         
         saleRepository.delete(sale);

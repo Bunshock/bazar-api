@@ -9,13 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Component;
 
 
-@Component
 public class SaleMapper {
 
-    public ShowSaleDTO SaleToShowSaleDTO(Sale sale) {
+    public static ShowSaleDTO SaleToShowSaleDTO(Sale sale) {
         
         // Como muestro la cantidad de cada producto comprado, elimino duplicados
         Set<Product> productosUnicos = new HashSet<>(sale.getProductList());

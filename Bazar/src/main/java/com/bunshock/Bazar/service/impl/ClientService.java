@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.bunshock.Bazar.repository.IClientRepository;
 import com.bunshock.Bazar.service.interfaces.IClientService;
+import com.bunshock.Bazar.utils.SecurityUtils;
+import com.bunshock.Bazar.utils.mapper.ClientMapper;
 
 
 @Service
@@ -22,11 +24,16 @@ public class ClientService implements IClientService {
     private final IUserRepository userRepository;
 
     @Autowired
-    public ClientService(IClientRepository clientRepository,
-            IUserRepository userRepository) {
+    public ClientService(IClientRepository clientRepository, IUserRepository userRepository) {
         this.clientRepository = clientRepository;
         this.userRepository = userRepository;
-    }    
+    }
+    
+    private Client getClientIfExists(Long id_client) {
+        return clientRepository.findById(id_client)
+                .orElseThrow(() -> new EntityNotFoundException("El usuario con "
+                        + "id (" + id_client + ") no fue encontrado"));
+    }
 
     @Override
     public void saveClient(ClientDTO inputClient) {
@@ -44,27 +51,14 @@ public class ClientService implements IClientService {
         List<Client> clientList = clientRepository.findAll();
         
         return clientList.stream()
-                .map(cliente -> {
-                    return new ClientDTO(
-                            cliente.getFirstName(),
-                            cliente.getLastName(),
-                            cliente.getDni()
-                    );
-                })
+                .map(client -> ClientMapper.ClientToClientDTO(client))
                 .collect(Collectors.toList());
     }
 
     @Override
     public ClientDTO getClientById(Long id_client) {
-        Client client = clientRepository.findById(id_client)
-                .orElseThrow(() -> new EntityNotFoundException("El usuario con "
-                        + "id (" + id_client + ") no fue encontrado"));
-        
-        return new ClientDTO(
-                client.getFirstName(),
-                client.getLastName(),
-                client.getDni()
-        );
+        Client client = getClientIfExists(id_client);
+        return ClientMapper.ClientToClientDTO(client);
     }
 
     @Override
@@ -74,9 +68,7 @@ public class ClientService implements IClientService {
 
     @Override
     public ClientDTO editClient(Long id_client, ClientDTO editedClient) {
-        Client client = clientRepository.findById(id_client)
-                .orElseThrow(() -> new EntityNotFoundException("El usuario con "
-                        + "id (" + id_client + ") no fue encontrado"));
+        Client client = getClientIfExists(id_client);
         
         if (editedClient.getFirstName() != null)
             client.setFirstName(editedClient.getFirstName());
@@ -87,41 +79,29 @@ public class ClientService implements IClientService {
         
         client = clientRepository.save(client);
         
-        return new ClientDTO(
-                client.getFirstName(),
-                client.getLastName(),
-                client.getDni()
-        );
+        return ClientMapper.ClientToClientDTO(client);
     }
 
     @Override
     public ClientDTO getMyClient() {
-        // Obtenemos el usuario relacionado al cliente logueado
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        Client client = clientRepository.findById(user.getCliente().getIdClient())
-                .orElseThrow(() -> new EntityNotFoundException("El usuario con "
-                        + "username (" + username + ") no tiene cliente asociado"));
+        Client client = getClientIfExists(user.getClient().getIdClient());
         
-        return new ClientDTO(
-                client.getFirstName(),
-                client.getLastName(),
-                client.getDni()
-        );
+        return ClientMapper.ClientToClientDTO(client);
     }
     
     @Override
     public ClientDTO editMyClient(ClientDTO editedClient) {
-        // Obtenemos el usuario relacionado al cliente logueado
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityUtils.getLoggedUsername();
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
         
-        Client client = user.getCliente();
+        Client client = user.getClient();
         
         if (editedClient.getFirstName() != null)
             client.setFirstName(editedClient.getFirstName());
@@ -132,11 +112,7 @@ public class ClientService implements IClientService {
         
         client = clientRepository.save(client);
         
-        return new ClientDTO(
-                client.getFirstName(),
-                client.getLastName(),
-                client.getDni()
-        );
+        return ClientMapper.ClientToClientDTO(client);
     }
     
 }

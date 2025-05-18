@@ -53,7 +53,7 @@ public class UserService implements IUserService {
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
                 .roleSet(Set.of(userRole))
-                .cliente(client)
+                .client(client)
                 .build();
         
         client.setUser(user);
