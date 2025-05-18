@@ -1,6 +1,7 @@
 package com.bunshock.Bazar.security.config;
 
-import com.bunshock.Bazar.security.config.JwtProvider;
+import com.bunshock.Bazar.exception.security.JwtAuthFilterException;
+import com.bunshock.Bazar.exception.security.JwtInvalidTokenException;
 import com.bunshock.Bazar.security.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,7 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+            FilterChain filterChain) {
         
         String jwt = parseJwt(request);
         // Si el token es válido, lo insertamos en el contexto de seguridad (donde se guarda
@@ -49,7 +50,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // autenticación.
         
         // Pasamos al siguiente filtro en la cadena
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } catch(ServletException e) {
+            throw new JwtInvalidTokenException(e.getMessage());
+        } catch (IOException e) {
+            throw new JwtAuthFilterException(e.getMessage());
+        }
+        
     }
     
     private String parseJwt(HttpServletRequest request) {

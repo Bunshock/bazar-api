@@ -1,5 +1,6 @@
 package com.bunshock.Bazar.security.service;
 
+import com.bunshock.Bazar.exception.security.UserNotFoundException;
 import com.bunshock.Bazar.model.UserEntity;
 import com.bunshock.Bazar.repository.IUserRepository;
 import java.util.HashSet;
@@ -10,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
@@ -27,10 +27,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     // Busco los usuarios en la base de datos, tomo los roles y permisos,
     // convirtiendolos a objetos de Spring Security y devuelvo un usuario de Spring Security.
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
-                        + "username (" + username + ") no existe"));
+                .orElseThrow(() -> new UserNotFoundException("cargar usuario", username));
 
         Set<GrantedAuthority> authorities = new HashSet<>();
         

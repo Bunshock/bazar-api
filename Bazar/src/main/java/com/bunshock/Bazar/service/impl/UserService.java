@@ -2,6 +2,8 @@ package com.bunshock.Bazar.service.impl;
 
 import com.bunshock.Bazar.service.interfaces.IUserService;
 import com.bunshock.Bazar.dto.auth.RegisterUserDTO;
+import com.bunshock.Bazar.exception.security.RegisterDuplicateUsernameException;
+import com.bunshock.Bazar.exception.security.RoleNotFoundException;
 import com.bunshock.Bazar.model.Client;
 import com.bunshock.Bazar.model.RoleEntity;
 import com.bunshock.Bazar.model.RoleEnum;
@@ -36,11 +38,11 @@ public class UserService implements IUserService {
         
         // Verificamos que no exista otro usuario con el mismo username
         if (userRepository.findByUsername(inputUser.getUsername()).isPresent())
-            throw new RuntimeException("El usuario ya existe");
+            throw new RegisterDuplicateUsernameException(inputUser.getUsername());
         
         // Verificamos que el rol 'USER' este correctamente almacenado
         RoleEntity userRole = roleRepository.findByRoleEnum(RoleEnum.USER)
-                .orElseThrow(() -> new RuntimeException("El rol 'USER' no fue encontrado"));
+                .orElseThrow(() -> new RoleNotFoundException("registrar usuario", "USER"));
         
         Client client = new Client();
         

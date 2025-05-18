@@ -1,8 +1,12 @@
 package com.bunshock.Bazar.security.config;
 
+import com.bunshock.Bazar.exception.security.JwtGenerateTokenException;
+import com.bunshock.Bazar.exception.security.JwtGetUsernameException;
+import com.bunshock.Bazar.exception.security.JwtInvalidTokenException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import java.util.Base64;
 import java.util.Date;
@@ -27,25 +31,39 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(decodedKey);
     }
     
-    // Generación de token
     public String generateToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         
-        return Jwts.builder()
+        String token;
+        try {
+            token = Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
+        } catch (InvalidKeyException e) {
+            throw new JwtGenerateTokenException(e.getMessage());
+        }
+        
+        return token;
     }
     
     public String getUsernameFromJwt(String token) {
-        return Jwts.parserBuilder()
+        String username;
+        
+        try {
+            username = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new JwtGetUsernameException(e.getMessage());
+        }
+        
+        return username;
     }
     
     public boolean validateJwtToken(String authToken) {
@@ -57,9 +75,8 @@ public class JwtProvider {
             return true;
         }
         catch (JwtException | IllegalArgumentException e) {
-            System.out.println("Token inválido: " + e.getMessage());
+            throw new JwtInvalidTokenException(e.getMessage());
         }
-        return false;
     }
     
 }
