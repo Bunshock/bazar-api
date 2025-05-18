@@ -1,6 +1,6 @@
 package com.bunshock.Bazar.service.impl;
 
-import com.bunshock.Bazar.dto.client.ClientDTO;
+import com.bunshock.Bazar.dto.client.InputClientDTO;
 import com.bunshock.Bazar.exception.app.ClientNotFoundException;
 import com.bunshock.Bazar.exception.app.UserWithoutClientException;
 import com.bunshock.Bazar.exception.security.UserNotFoundException;
@@ -29,7 +29,7 @@ public class ClientService implements IClientService {
     }
 
     @Override
-    public void saveClient(ClientDTO inputClient) {
+    public void saveClient(InputClientDTO inputClient) {
         Client client = new Client();
         
         client.setFirstName(inputClient.getFirstName());
@@ -56,7 +56,7 @@ public class ClientService implements IClientService {
     }
 
     @Override
-    public Client editClient(Long id_client, ClientDTO editedClient) {
+    public Client editClient(Long id_client, InputClientDTO editedClient) {
         Client client = this.getClientById(id_client);
         return clientRepository.save(ClientMapper.updateClientFromDTO(client, editedClient));
     }
@@ -73,7 +73,7 @@ public class ClientService implements IClientService {
     }
     
     @Override
-    public Client editMyClient(ClientDTO editedClient) {
+    public Client editMyClient(InputClientDTO editedClient) {
         String username = SecurityUtils.getLoggedUsername();
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("editar mi cliente", username));

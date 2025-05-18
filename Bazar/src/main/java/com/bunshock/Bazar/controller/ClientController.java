@@ -1,8 +1,9 @@
 package com.bunshock.Bazar.controller;
 
-import com.bunshock.Bazar.dto.client.ClientDTO;
+import com.bunshock.Bazar.dto.client.InputClientDTO;
 import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.OnUpdate;
+import com.bunshock.Bazar.dto.client.ShowClientDTO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class ClientController {
     }
     
     @PostMapping("/crear")
-    public ResponseEntity<?> createClient(@Validated(OnCreate.class) @RequestBody ClientDTO inputClient,
+    public ResponseEntity<?> createClient(@Validated(OnCreate.class) @RequestBody InputClientDTO inputClient,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
@@ -49,18 +50,18 @@ public class ClientController {
     }
     
     @GetMapping("")
-    public ResponseEntity<List<ClientDTO>> getAllClients() {
+    public ResponseEntity<List<ShowClientDTO>> getAllClients() {
         List<Client> clientList = clientService.getClients();
         return new ResponseEntity<>(clientList.stream()
-                .map(client -> ClientMapper.ClientToClientDTO(client))
+                .map(client -> ClientMapper.ClientToShowClientDTO(client))
                 .collect(Collectors.toList()),
                 HttpStatus.OK);
     }
     
     @GetMapping("/{id_client}")
-    public ResponseEntity<ClientDTO> getOneClient(@PathVariable Long id_client) {
+    public ResponseEntity<ShowClientDTO> getOneClient(@PathVariable Long id_client) {
         Client client = clientService.getClientById(id_client);
-        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(client), HttpStatus.OK);
+        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(client), HttpStatus.OK);
     }
     
     @DeleteMapping("/eliminar/{id_client}")
@@ -70,36 +71,36 @@ public class ClientController {
     }
     
     @PutMapping("/editar/{id_client}")
-    public ResponseEntity<ClientDTO> editClient(@PathVariable Long id_client,
-            @Validated(OnUpdate.class) @RequestBody ClientDTO editedClient, BindingResult bindingResult) {
+    public ResponseEntity<ShowClientDTO> editClient(@PathVariable Long id_client,
+            @Validated(OnUpdate.class) @RequestBody InputClientDTO editedClient, BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
         
         Client updatedClient = clientService.editClient(id_client, editedClient);
-        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(updatedClient), HttpStatus.OK);
+        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(updatedClient), HttpStatus.OK);
     }
     
     // Operaciones de usuarios con rol : USER
     
     @GetMapping("/mi-cliente")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClientDTO> getMyClient() {
+    public ResponseEntity<ShowClientDTO> getMyClient() {
         Client myClient = clientService.getMyClient();
-        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(myClient), HttpStatus.OK);
+        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(myClient), HttpStatus.OK);
     }
     
     @PutMapping("/editar/mi-cliente")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClientDTO> editMyClient(
-            @Validated(OnUpdate.class) @RequestBody ClientDTO editedClient,
+    public ResponseEntity<ShowClientDTO> editMyClient(
+            @Validated(OnUpdate.class) @RequestBody InputClientDTO editedClient,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
 
         Client updatedClient = clientService.editMyClient(editedClient);
-        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(updatedClient), HttpStatus.OK);
+        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(updatedClient), HttpStatus.OK);
     }
     
 }

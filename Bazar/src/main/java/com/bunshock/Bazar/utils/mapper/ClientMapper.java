@@ -1,20 +1,23 @@
 package com.bunshock.Bazar.utils.mapper;
 
-import com.bunshock.Bazar.dto.client.ClientDTO;
+import com.bunshock.Bazar.dto.client.InputClientDTO;
+import com.bunshock.Bazar.dto.client.ShowClientDTO;
 import com.bunshock.Bazar.model.Client;
 
 
 public class ClientMapper {
     
-    public static ClientDTO ClientToClientDTO(Client client) {
-        return new ClientDTO(
+    public static ShowClientDTO ClientToShowClientDTO(Client client) {
+        return new ShowClientDTO(
+                client.getIdClient(),
                 client.getFirstName(),
                 client.getLastName(),
-                client.getDni()
+                client.getDni(),
+                client.getUser().getId()
         );
     }
     
-    public static Client updateClientFromDTO(Client client, ClientDTO editedClient) {
+    public static Client updateClientFromDTO(Client client, InputClientDTO editedClient) {
         if (editedClient.getFirstName() != null)
             client.setFirstName(editedClient.getFirstName());
         if (editedClient.getLastName() != null)
