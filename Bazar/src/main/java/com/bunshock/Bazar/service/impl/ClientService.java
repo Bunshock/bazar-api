@@ -2,8 +2,6 @@ package com.bunshock.Bazar.service.impl;
 
 import com.bunshock.Bazar.dto.client.InputClientDTO;
 import com.bunshock.Bazar.exception.app.ClientNotFoundException;
-import com.bunshock.Bazar.exception.app.UserWithoutClientException;
-import com.bunshock.Bazar.exception.security.UserNotFoundException;
 import com.bunshock.Bazar.model.Client;
 import com.bunshock.Bazar.model.UserEntity;
 import com.bunshock.Bazar.repository.IUserRepository;
@@ -21,11 +19,14 @@ public class ClientService implements IClientService {
     
     private final IClientRepository clientRepository;
     private final IUserRepository userRepository;
+    private final SecurityUtils securityUtils;
 
     @Autowired
-    public ClientService(IClientRepository clientRepository, IUserRepository userRepository) {
+    public ClientService(IClientRepository clientRepository, IUserRepository userRepository,
+            SecurityUtils securityUtils) {
         this.clientRepository = clientRepository;
         this.userRepository = userRepository;
+        this.securityUtils = securityUtils;
     }
 
     @Override
@@ -52,6 +53,7 @@ public class ClientService implements IClientService {
 
     @Override
     public void deleteClient(Long id_client) {
+        this.getClientById(id_client);  // Verifico que el cliente exista
         clientRepository.deleteById(id_client);
     }
 
@@ -63,23 +65,13 @@ public class ClientService implements IClientService {
 
     @Override
     public Client getMyClient() {
-        String username = SecurityUtils.getLoggedUsername();
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("obtener mi cliente", username));
-        
-        if (user.getClient() == null) throw new UserWithoutClientException("obtener mi cliente", username);
-        
+        UserEntity user = securityUtils.getUserFromContext();
         return this.getClientById(user.getClient().getIdClient());
     }
     
     @Override
     public Client editMyClient(InputClientDTO editedClient) {
-        String username = SecurityUtils.getLoggedUsername();
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("editar mi cliente", username));
-        
-        if (user.getClient() == null) throw new UserWithoutClientException("editar mi cliente", username);
-        
+        UserEntity user = securityUtils.getUserFromContext();
         return this.editClient(user.getClient().getIdClient(), editedClient);
     }
     

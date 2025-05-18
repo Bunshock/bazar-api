@@ -17,19 +17,19 @@ public class ShowSaleDTO {
     
     private List<SaleProductDTO> productsBought;
     
-    private String clientDni;
+    private Long clientId;
 
     public ShowSaleDTO() {
     }
 
     public ShowSaleDTO(Long saleCode, LocalDate saleDate, Double totalPrice,
-            boolean finalized, List<SaleProductDTO> productsBought, String clientDni) {
+            boolean finalized, List<SaleProductDTO> productsBought, Long clientId) {
         this.saleCode = saleCode;
         this.saleDate = saleDate;
         this.totalPrice = totalPrice;
         this.finalized = finalized;
         this.productsBought = productsBought;
-        this.clientDni = clientDni;
+        this.clientId = clientId;
     }
 
     

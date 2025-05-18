@@ -1,6 +1,7 @@
 package com.bunshock.Bazar.utils.mapper;
 
 import com.bunshock.Bazar.dto.product.SaleProductDTO;
+import com.bunshock.Bazar.dto.sale.HighestSaleDTO;
 import com.bunshock.Bazar.dto.sale.ShowSaleDTO;
 import com.bunshock.Bazar.model.Product;
 import com.bunshock.Bazar.model.Sale;
@@ -37,7 +38,17 @@ public class SaleMapper {
                                         .doubleValue()
                         ))
                         .collect(Collectors.toList()),
-                sale.getClient().getDni()
+                sale.getClient().getIdClient()
+        );
+    }
+    
+    public static HighestSaleDTO SaleToHighestSaleDTO(Sale sale) {
+        return new HighestSaleDTO(
+                sale.getSaleCode(),
+                sale.getTotalPrice(),
+                sale.getProductList().size(),
+                sale.getClient().getFirstName(),
+                sale.getClient().getLastName()
         );
     }
     

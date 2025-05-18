@@ -13,10 +13,10 @@ public interface ISaleService {
     
     // CRUD Venta
     void saveSale(InputSaleDTO inputSale, Long id_client);
-    List<ShowSaleDTO> getSales();
-    ShowSaleDTO getSaleById(Long sale_code);
+    List<Sale> getSales();
+    Sale getSaleByCode(Long sale_code);
     void deleteSale(Long sale_code);
-    ShowSaleDTO editSale(Long sale_code, InputSaleDTO editedSale, Long id_client);
+    Sale editSale(Long sale_code, InputSaleDTO editedSale, Long id_client);
     
     List<Product> getSaleProducts(Long sale_code);
     DateSalesSummaryDTO getSaleSummaryByDate(LocalDate date);
@@ -28,8 +28,8 @@ public interface ISaleService {
     void finalizeSale(Long sale_code);
     
     void saveMySale(InputSaleDTO inputSale);
-    List<ShowSaleDTO> getMySales();
-    ShowSaleDTO getMySaleById(Long sale_code);
+    List<Sale> getMySales();
+    Sale getMySaleByCode(Long sale_code);
     void deleteMySale(Long sale_code);
     
 }

@@ -46,6 +46,7 @@ public class ProductService implements IProductService {
 
     @Override
     public void deleteProduct(Long product_code) {
+        this.getProductByCode(product_code);  // Verifico que el producto exista
         productRepository.deleteById(product_code);
     }
 
