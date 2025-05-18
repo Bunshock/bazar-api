@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.IProductService;
 import com.bunshock.Bazar.exception.ValidationHandler;
-import jakarta.persistence.EntityNotFoundException;
 
 
 @RestController
@@ -56,8 +55,7 @@ public class ProductController {
     @GetMapping("/{product_code}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Product> getOneProduct(@PathVariable Long product_code) {
-        return new ResponseEntity<>(productService.getProductByCode(product_code),
-                HttpStatus.OK);
+        return new ResponseEntity<>(productService.getProductByCode(product_code), HttpStatus.OK);
     }
     
     @DeleteMapping("/eliminar/{product_code}")
@@ -73,16 +71,7 @@ public class ProductController {
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
         
-        Product product;
-        
-        try {
-            product = productService.editProduct(product_code, editedProduct);
-        } catch(EntityNotFoundException e) {
-            return new ResponseEntity<>("Error al editar producto: " + e.getMessage(),
-                    HttpStatus.BAD_REQUEST);
-        }
-        
-        return new ResponseEntity<>(product, HttpStatus.OK);
+        return new ResponseEntity<>(productService.editProduct(product_code, editedProduct), HttpStatus.OK);
     }
     
     @GetMapping("/falta_stock")

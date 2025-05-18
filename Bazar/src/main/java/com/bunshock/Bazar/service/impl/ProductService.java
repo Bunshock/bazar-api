@@ -1,13 +1,14 @@
 package com.bunshock.Bazar.service.impl;
 
 import com.bunshock.Bazar.dto.product.ProductDTO;
+import com.bunshock.Bazar.exception.app.ProductNotFoundException;
 import com.bunshock.Bazar.model.Product;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.bunshock.Bazar.repository.IProductRepository;
 import com.bunshock.Bazar.service.interfaces.IProductService;
-import jakarta.persistence.EntityNotFoundException;
+import com.bunshock.Bazar.utils.mapper.ProductMapper;
 
 
 @Service
@@ -40,8 +41,7 @@ public class ProductService implements IProductService {
     @Override
     public Product getProductByCode(Long product_code) {
         return productRepository.findById(product_code)
-                .orElseThrow(() -> new EntityNotFoundException("No se"
-                        + " encontró producto con código: " + product_code));
+                .orElseThrow(() -> new ProductNotFoundException("obtener producto", product_code));
     }
 
     @Override
@@ -52,17 +52,7 @@ public class ProductService implements IProductService {
     @Override
     public Product editProduct(Long product_code, ProductDTO editedProduct) {
         Product product = this.getProductByCode(product_code);
-        
-        if (editedProduct.getName() != null)
-            product.setName(editedProduct.getName());
-        if (editedProduct.getBrand()!= null)
-            product.setBrand(editedProduct.getBrand());
-        if (editedProduct.getPrice()!= null)
-            product.setPrice(editedProduct.getPrice());
-        if (editedProduct.getAmountAvailable()!= null)
-            product.setAmountAvailable(editedProduct.getAmountAvailable());
-        
-        return productRepository.save(product);
+        return productRepository.save(ProductMapper.updateProductFromDTO(product, editedProduct));
     }
 
     @Override
