@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.ISaleService;
-import com.bunshock.Bazar.exception.GlobalExceptionHandler;
+import com.bunshock.Bazar.exception.ValidationHandler;
 
 
 @RestController
@@ -38,10 +38,10 @@ import com.bunshock.Bazar.exception.GlobalExceptionHandler;
 public class SaleController {
     
     private final ISaleService saleService;
-    private final GlobalExceptionHandler exceptionHandler;
+    private final ValidationHandler exceptionHandler;
     
     @Autowired
-    public SaleController(ISaleService saleService, GlobalExceptionHandler exceptionHandler) {
+    public SaleController(ISaleService saleService, ValidationHandler exceptionHandler) {
         this.saleService = saleService;
         this.exceptionHandler = exceptionHandler;
     }

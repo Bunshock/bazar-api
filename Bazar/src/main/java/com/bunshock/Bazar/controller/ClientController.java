@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.IClientService;
-import com.bunshock.Bazar.exception.GlobalExceptionHandler;
+import com.bunshock.Bazar.exception.ValidationHandler;
 
 
 @RestController
@@ -28,11 +28,11 @@ import com.bunshock.Bazar.exception.GlobalExceptionHandler;
 public class ClientController {
     
     private final IClientService clientService;
-    private final GlobalExceptionHandler exceptionHandler;
+    private final ValidationHandler exceptionHandler;
 
     @Autowired
     public ClientController(IClientService clientService,
-            GlobalExceptionHandler exceptionHandler) {
+            ValidationHandler exceptionHandler) {
         this.clientService = clientService;
         this.exceptionHandler = exceptionHandler;
     }

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.IProductService;
-import com.bunshock.Bazar.exception.GlobalExceptionHandler;
+import com.bunshock.Bazar.exception.ValidationHandler;
 import jakarta.persistence.EntityNotFoundException;
 
 
@@ -30,11 +30,11 @@ import jakarta.persistence.EntityNotFoundException;
 public class ProductController {
     
     private final IProductService productService;
-    private final GlobalExceptionHandler exceptionHandler;
+    private final ValidationHandler exceptionHandler;
     
     @Autowired
     public ProductController(IProductService productService,
-            GlobalExceptionHandler exceptionHandler) {
+            ValidationHandler exceptionHandler) {
         this.productService = productService;
         this.exceptionHandler = exceptionHandler;
     }
