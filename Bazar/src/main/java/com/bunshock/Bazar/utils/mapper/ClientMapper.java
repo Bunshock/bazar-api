@@ -8,12 +8,17 @@ import com.bunshock.Bazar.model.Client;
 public class ClientMapper {
     
     public static ShowClientDTO ClientToShowClientDTO(Client client) {
+        
+        // Un cliente puede no tener un usuario asociado
+        Long userId = null;
+        if (client.getUser() != null) userId = client.getUser().getId();
+        
         return new ShowClientDTO(
                 client.getIdClient(),
                 client.getFirstName(),
                 client.getLastName(),
                 client.getDni(),
-                client.getUser().getId()
+                userId
         );
     }
     
