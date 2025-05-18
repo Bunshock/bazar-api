@@ -38,12 +38,10 @@ import com.bunshock.Bazar.exception.ValidationHandler;
 public class SaleController {
     
     private final ISaleService saleService;
-    private final ValidationHandler exceptionHandler;
     
     @Autowired
-    public SaleController(ISaleService saleService, ValidationHandler exceptionHandler) {
+    public SaleController(ISaleService saleService) {
         this.saleService = saleService;
-        this.exceptionHandler = exceptionHandler;
     }
     
     @PostMapping("/crear")
@@ -51,7 +49,7 @@ public class SaleController {
             BindingResult bindingResult, @RequestParam Long id_client) {
         
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
         
         try {
             saleService.saveSale(inputSale, id_client);
@@ -87,7 +85,7 @@ public class SaleController {
             BindingResult bindingResult, @RequestParam Long id_client) {
         
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
         
         ShowSaleDTO editedSaleDTO;
         
@@ -141,7 +139,7 @@ public class SaleController {
     public ResponseEntity<String> createMySale(@Validated(OnCreate.class) @RequestBody InputSaleDTO inputSale,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
         
         try {
             saleService.saveMySale(inputSale);

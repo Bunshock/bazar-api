@@ -30,13 +30,10 @@ import jakarta.persistence.EntityNotFoundException;
 public class ProductController {
     
     private final IProductService productService;
-    private final ValidationHandler exceptionHandler;
     
     @Autowired
-    public ProductController(IProductService productService,
-            ValidationHandler exceptionHandler) {
+    public ProductController(IProductService productService) {
         this.productService = productService;
-        this.exceptionHandler = exceptionHandler;
     }
     
     @PostMapping("/crear")
@@ -44,7 +41,7 @@ public class ProductController {
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
         
         productService.saveProduct(inputProduct);
         return new ResponseEntity<>("Producto creado satisfactoriamente", HttpStatus.CREATED);
@@ -74,7 +71,7 @@ public class ProductController {
             @Validated(OnUpdate.class) @RequestBody ProductDTO editedProduct, BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
         
         Product product;
         

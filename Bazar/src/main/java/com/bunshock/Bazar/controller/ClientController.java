@@ -28,13 +28,10 @@ import com.bunshock.Bazar.exception.ValidationHandler;
 public class ClientController {
     
     private final IClientService clientService;
-    private final ValidationHandler exceptionHandler;
 
     @Autowired
-    public ClientController(IClientService clientService,
-            ValidationHandler exceptionHandler) {
+    public ClientController(IClientService clientService) {
         this.clientService = clientService;
-        this.exceptionHandler = exceptionHandler;
     }
     
     @PostMapping("/crear")
@@ -42,7 +39,7 @@ public class ClientController {
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
         
         clientService.saveClient(inputClient);
         return new ResponseEntity<>("Cliente creado satisfactoriamente", HttpStatus.CREATED);
@@ -70,7 +67,7 @@ public class ClientController {
             @Validated(OnUpdate.class) @RequestBody ClientDTO editedClient, BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
         
         return new ResponseEntity<>(clientService.editClient(id_client, editedClient),
                 HttpStatus.OK);
@@ -89,7 +86,7 @@ public class ClientController {
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
-            return exceptionHandler.handleValidationErrors(bindingResult);
+            return ValidationHandler.handleValidationErrors(bindingResult);
 
         return new ResponseEntity<>(clientService.editMyClient(editedClient),
                 HttpStatus.OK);
