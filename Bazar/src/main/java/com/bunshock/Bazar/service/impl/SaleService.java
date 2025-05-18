@@ -166,21 +166,19 @@ public class SaleService implements ISaleService {
         // Verifico que la cantidad de dicho producto que se quiere vender no supera
         // la cantidad disponible. Dado el caso que se supere la cantidad disponible,
         // tiro una excepcion.
-        productCountByCode.entrySet().stream()
-                .map(entry -> {
-                    Long productCode = entry.getKey();
-                    Long productCount = entry.getValue();
-                    
-                    Product product = productRepository.findById(productCode)
-                            .orElseThrow(() -> new ProductNotFoundException("concretar venta", productCode));
-                    
-                    if (product.getAmountAvailable() < productCount)
-                        throw new InsufficientStockException("concretar venta", productCode, product.getName());
-                    
-                    product.setAmountAvailable(product.getAmountAvailable() - productCount);
-                    productRepository.save(product);
-                    return product;
-                });
+        productCountByCode.entrySet().forEach(entry -> {
+            Long productCode = entry.getKey();
+            Long productCount = entry.getValue();
+
+            Product product = productRepository.findById(productCode)
+                    .orElseThrow(() -> new ProductNotFoundException("concretar venta", productCode));
+
+            if (product.getAmountAvailable() < productCount)
+                throw new InsufficientStockException("concretar venta", productCode, product.getName());
+
+            product.setAmountAvailable(product.getAmountAvailable() - productCount);
+            productRepository.save(product);
+        });
         
         sale.setFinalized(true);
         
