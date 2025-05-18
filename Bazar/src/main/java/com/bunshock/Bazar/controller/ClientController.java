@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.IClientService;
 import com.bunshock.Bazar.exception.ValidationHandler;
+import com.bunshock.Bazar.model.Client;
+import com.bunshock.Bazar.utils.mapper.ClientMapper;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -47,13 +50,17 @@ public class ClientController {
     
     @GetMapping("")
     public ResponseEntity<List<ClientDTO>> getAllClients() {
-        return new ResponseEntity<>(clientService.getClients(), HttpStatus.OK);
+        List<Client> clientList = clientService.getClients();
+        return new ResponseEntity<>(clientList.stream()
+                .map(client -> ClientMapper.ClientToClientDTO(client))
+                .collect(Collectors.toList()),
+                HttpStatus.OK);
     }
     
     @GetMapping("/{id_client}")
     public ResponseEntity<ClientDTO> getOneClient(@PathVariable Long id_client) {
-        return new ResponseEntity<>(clientService.getClientById(id_client),
-                HttpStatus.OK);
+        Client client = clientService.getClientById(id_client);
+        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(client), HttpStatus.OK);
     }
     
     @DeleteMapping("/eliminar/{id_client}")
@@ -69,14 +76,17 @@ public class ClientController {
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
         
-        return new ResponseEntity<>(clientService.editClient(id_client, editedClient),
-                HttpStatus.OK);
+        Client updatedClient = clientService.editClient(id_client, editedClient);
+        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(updatedClient), HttpStatus.OK);
     }
+    
+    // Operaciones de usuarios con rol : USER
     
     @GetMapping("/mi-cliente")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ClientDTO> getMyClient() {
-        return new ResponseEntity<>(clientService.getMyClient(), HttpStatus.OK);
+        Client myClient = clientService.getMyClient();
+        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(myClient), HttpStatus.OK);
     }
     
     @PutMapping("/editar/mi-cliente")
@@ -88,8 +98,8 @@ public class ClientController {
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
 
-        return new ResponseEntity<>(clientService.editMyClient(editedClient),
-                HttpStatus.OK);
+        Client updatedClient = clientService.editMyClient(editedClient);
+        return new ResponseEntity<>(ClientMapper.ClientToClientDTO(updatedClient), HttpStatus.OK);
     }
     
 }

@@ -14,4 +14,14 @@ public class ClientMapper {
         );
     }
     
+    public static Client updateClientFromDTO(Client client, ClientDTO editedClient) {
+        if (editedClient.getFirstName() != null)
+            client.setFirstName(editedClient.getFirstName());
+        if (editedClient.getLastName() != null)
+            client.setLastName(editedClient.getLastName());
+        if (editedClient.getDni() != null)
+            client.setDni(editedClient.getDni());
+        return client;
+    }
+    
 }
