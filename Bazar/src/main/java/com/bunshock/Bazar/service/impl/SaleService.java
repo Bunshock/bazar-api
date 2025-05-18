@@ -45,17 +45,24 @@ public class SaleService implements ISaleService {
         this.userRepository = userRepository;
         this.saleMapper = saleMapper;
     }
+    
+    // Infiero el precio total de venta basado en la lista de productos
+    private Double calculateSalePrice(List<Product> saleProducts) {
+        return saleProducts.stream()
+                .mapToDouble(product -> product.getPrice())
+                .sum();
+    }
 
     @Override
     @Transactional
     public void saveSale(InputSaleDTO inputSale, Long id_client) {
+        
         Sale sale = new Sale();
         
         sale.setSaleDate(inputSale.getSaleDate());
-        sale.setTotalPrice(inputSale.getTotalPrice());
-
+        
         // Obtengo todos los productos con los ids ingresados. Si un producto
-        // ingresado no existe, tiramos excepción.
+        // ingresado no existe, devuelvo una excepción.
         List<Product> productList = inputSale.getProductCodeList().stream()
                 .map(id -> productRepository.findById(id)
                         .orElseThrow(() -> new EntityNotFoundException("No se"
@@ -63,6 +70,8 @@ public class SaleService implements ISaleService {
                 )
                 .collect(Collectors.toList());
         sale.setProductList(productList);
+ 
+        sale.setTotalPrice(calculateSalePrice(productList));
         
         // Obtengo el Cliente relacionado al id ingresado
         Client client = clientRepository.findById(id_client)
@@ -86,7 +95,7 @@ public class SaleService implements ISaleService {
     public ShowSaleDTO getSaleById(Long sale_code) {
         Sale sale = saleRepository.findById(sale_code)
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
-                        + "id (" + sale_code + ") no fue encontrada"));
+                        + "código (" + sale_code + ") no fue encontrada"));
         
         return saleMapper.SaleToShowSaleDTO(sale);
     }
@@ -105,8 +114,6 @@ public class SaleService implements ISaleService {
         
         if (editedSale.getSaleDate() != null)
             sale.setSaleDate(editedSale.getSaleDate());
-        if (editedSale.getTotalPrice() != null)
-            sale.setTotalPrice(editedSale.getTotalPrice());
         if (editedSale.getProductCodeList() != null) {
             List<Product> productList = productRepository
                 .findAllById(editedSale.getProductCodeList());
@@ -119,6 +126,8 @@ public class SaleService implements ISaleService {
             sale.setClient(client);
         }
         
+        sale.setTotalPrice(calculateSalePrice(sale.getProductList()));
+        
         saleRepository.save(sale);
         
         return saleMapper.SaleToShowSaleDTO(sale);
@@ -128,7 +137,7 @@ public class SaleService implements ISaleService {
     public List<Product> getSaleProducts(Long sale_code) {
         Sale sale = saleRepository.findById(sale_code)
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
-                        + "id (" + sale_code + ") no fue encontrada"));
+                        + "código (" + sale_code + ") no fue encontrada"));
         return sale.getProductList();
     }
 
@@ -157,7 +166,10 @@ public class SaleService implements ISaleService {
     public void finalizeSale(Long sale_code) {
         Sale sale = saleRepository.findById(sale_code)
                 .orElseThrow(() -> new EntityNotFoundException("La venta con "
-                        + "id (" + sale_code + ") no fue encontrada"));
+                        + "código (" + sale_code + ") no fue encontrada"));
+        
+        if (sale.isFinalized()) throw new IllegalStateException("No pudo concretarse"
+                + " la venta: venta ya concretada");
 
         // Para descontar los productos vendidos de cantidad_disponible en Producto
         // (siempre y cuando la cantidad vendida no supere la cantidad disponible)
@@ -197,18 +209,17 @@ public class SaleService implements ISaleService {
     @Override
     @Transactional
     public void saveMySale(InputSaleDTO inputSale) {
+        
+        Sale mySale = new Sale();
+        
         // Obtenemos el usuario relacionado al cliente logueado
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario con "
                         + "username (" + username + ") no existe"));
-        
-        Sale mySale = new Sale();
-        
         mySale.setClient(user.getCliente());
         
         mySale.setSaleDate(inputSale.getSaleDate());
-        mySale.setTotalPrice(inputSale.getTotalPrice());
 
         // Obtengo todos los productos con los ids ingresados. Si un producto
         // ingresado no existe, tiramos excepción.
@@ -219,6 +230,8 @@ public class SaleService implements ISaleService {
                 )
                 .collect(Collectors.toList());
         mySale.setProductList(productList);
+        
+        mySale.setTotalPrice(calculateSalePrice(productList));
         
         saleRepository.save(mySale);
     }
