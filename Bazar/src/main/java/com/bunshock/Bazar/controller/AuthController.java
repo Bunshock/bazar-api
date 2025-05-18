@@ -1,8 +1,10 @@
 package com.bunshock.Bazar.controller;
 
+import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.auth.JwtResponseDTO;
 import com.bunshock.Bazar.dto.auth.LoginUserDTO;
 import com.bunshock.Bazar.dto.auth.RegisterUserDTO;
+import com.bunshock.Bazar.exception.ValidationHandler;
 import com.bunshock.Bazar.security.config.JwtProvider;
 import com.bunshock.Bazar.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +37,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterUserDTO registerDTO) {
+    public ResponseEntity<String> register(@Validated(OnCreate.class) @RequestBody RegisterUserDTO registerDTO,
+            BindingResult bindingResult) {
+        
+        if (bindingResult.hasErrors())
+            return ValidationHandler.handleValidationErrors(bindingResult);
+        
         userService.registerUser(registerDTO);
         return new ResponseEntity<>("Usuario registrado correctamente", HttpStatus.CREATED);
     }
@@ -41,7 +50,12 @@ public class AuthController {
     // Obtengo credenciales de login, y devuevlo un token al cliente (que deberá
     // usar en futuras requests)
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDTO> login(@RequestBody LoginUserDTO loginDTO) {
+    public ResponseEntity<JwtResponseDTO> login(@Validated(OnCreate.class) @RequestBody LoginUserDTO loginDTO,
+            BindingResult bindingResult) {
+        
+        if (bindingResult.hasErrors())
+            return ValidationHandler.handleValidationErrors(bindingResult);
+        
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDTO.getUsername(),
