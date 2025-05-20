@@ -1,5 +1,7 @@
 package com.bunshock.Bazar.controller;
 
+import com.bunshock.Bazar.dto.ApiResponseDTO;
+import com.bunshock.Bazar.dto.ApiSuccessResponseDTO;
 import com.bunshock.Bazar.dto.client.InputClientDTO;
 import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.OnUpdate;
@@ -21,8 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.IClientService;
 import com.bunshock.Bazar.exception.ValidationHandler;
-import com.bunshock.Bazar.model.Client;
 import com.bunshock.Bazar.utils.mapper.ClientMapper;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 
@@ -39,68 +41,107 @@ public class ClientController {
     }
     
     @PostMapping("/crear")
-    public ResponseEntity<?> createClient(@Validated(OnCreate.class) @RequestBody InputClientDTO inputClient,
+    public ResponseEntity<ApiResponseDTO> createClient(
+            @Validated(OnCreate.class) @RequestBody InputClientDTO inputClient,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
         
         clientService.saveClient(inputClient);
-        return new ResponseEntity<>("Cliente creado satisfactoriamente", HttpStatus.CREATED);
+        
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<Void>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("Cliente creado correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build(), HttpStatus.CREATED);
     }
     
     @GetMapping("")
-    public ResponseEntity<List<ShowClientDTO>> getAllClients() {
-        List<Client> clientList = clientService.getClients();
-        return new ResponseEntity<>(clientList.stream()
-                .map(client -> ClientMapper.ClientToShowClientDTO(client))
-                .collect(Collectors.toList()),
-                HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getAllClients() {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<List<ShowClientDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("Lista de clientes obtenida correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(clientService.getClients().stream()
+                        .map(client -> ClientMapper.ClientToShowClientDTO(client))
+                        .collect(Collectors.toList()))
+                .build(), HttpStatus.OK);
     }
     
     @GetMapping("/{id_client}")
-    public ResponseEntity<ShowClientDTO> getOneClient(@PathVariable Long id_client) {
-        Client client = clientService.getClientById(id_client);
-        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(client), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getOneClient(
+            @PathVariable Long id_client) {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<ShowClientDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Cliente obtenido correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(ClientMapper.ClientToShowClientDTO(
+                        clientService.getClientById(id_client)))
+                .build(), HttpStatus.OK);
     }
     
     @DeleteMapping("/eliminar/{id_client}")
-    public ResponseEntity<String> deleteClient(@PathVariable Long id_client) {
+    public ResponseEntity<ApiResponseDTO> deleteClient(
+            @PathVariable Long id_client) {
         clientService.deleteClient(id_client);
-        return new ResponseEntity<>("Cliente borrado exitosamente", HttpStatus.OK);
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Cliente borrado correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build(), HttpStatus.OK);
     }
     
     @PutMapping("/editar/{id_client}")
-    public ResponseEntity<ShowClientDTO> editClient(@PathVariable Long id_client,
-            @Validated(OnUpdate.class) @RequestBody InputClientDTO editedClient, BindingResult bindingResult) {
+    public ResponseEntity<ApiResponseDTO> editClient(
+            @PathVariable Long id_client,
+            @Validated(OnUpdate.class) @RequestBody InputClientDTO editedClient,
+            BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
         
-        Client updatedClient = clientService.editClient(id_client, editedClient);
-        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(updatedClient), HttpStatus.OK);
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<ShowClientDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Cliente editado correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(ClientMapper.ClientToShowClientDTO(
+                        clientService.editClient(id_client, editedClient)))
+                .build(), HttpStatus.OK);
     }
     
     // Operaciones de usuarios con rol : USER
     
     @GetMapping("/mi-cliente")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ShowClientDTO> getMyClient() {
-        Client myClient = clientService.getMyClient();
-        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(myClient), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getMyClient() {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<ShowClientDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Cliente de usuario obtenido correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(ClientMapper.ClientToShowClientDTO(
+                        clientService.getMyClient()))
+                .build(), HttpStatus.OK);
     }
     
     @PutMapping("/editar/mi-cliente")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ShowClientDTO> editMyClient(
+    public ResponseEntity<ApiResponseDTO> editMyClient(
             @Validated(OnUpdate.class) @RequestBody InputClientDTO editedClient,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
 
-        Client updatedClient = clientService.editMyClient(editedClient);
-        return new ResponseEntity<>(ClientMapper.ClientToShowClientDTO(updatedClient), HttpStatus.OK);
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<ShowClientDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Cliente de usuario editado correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(ClientMapper.ClientToShowClientDTO(
+                        clientService.editMyClient(editedClient)))
+                .build(), HttpStatus.OK);
     }
     
 }

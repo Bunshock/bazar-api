@@ -1,12 +1,14 @@
 package com.bunshock.Bazar.exception;
 
+import com.bunshock.Bazar.dto.ApiErrorResponseDTO;
 import com.bunshock.Bazar.exception.app.AppBusinessException;
 import com.bunshock.Bazar.exception.app.AppNotFoundException;
 import com.bunshock.Bazar.exception.security.SecurityBusinessException;
 import com.bunshock.Bazar.exception.security.SecurityInternalServerException;
 import com.bunshock.Bazar.exception.security.SecurityNotFoundException;
 import com.bunshock.Bazar.exception.security.SecurityUnauthorizedException;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,33 +19,57 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     
     @ExceptionHandler(AppNotFoundException.class)
-    public ResponseEntity<?> handleAppNotFound(AppNotFoundException e) {
-        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiErrorResponseDTO> handleAppNotFound(AppNotFoundException e) {
+        return new ResponseEntity<>(ApiErrorResponseDTO.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .errors(List.of(e.getMessage()))
+                .build(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AppBusinessException.class)
-    public ResponseEntity<?> handleAppBusiness(AppBusinessException e) {
-        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+    public ResponseEntity<ApiErrorResponseDTO> handleAppBusiness(AppBusinessException e) {
+        return new ResponseEntity<>(ApiErrorResponseDTO.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .timestamp(LocalDateTime.now())
+                .errors(List.of(e.getMessage()))
+                .build(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(SecurityNotFoundException.class)
-    public ResponseEntity<?> handleSecurityNotFound(SecurityNotFoundException e) {
-        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiErrorResponseDTO> handleSecurityNotFound(SecurityNotFoundException e) {
+        return new ResponseEntity<>(ApiErrorResponseDTO.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .errors(List.of(e.getMessage()))
+                .build(), HttpStatus.NOT_FOUND);
     }
     
     @ExceptionHandler(SecurityBusinessException.class)
-    public ResponseEntity<?> handleSecurityBusiness(SecurityBusinessException e) {
-        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
+    public ResponseEntity<ApiErrorResponseDTO> handleSecurityBusiness(SecurityBusinessException e) {
+        return new ResponseEntity<>(ApiErrorResponseDTO.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .timestamp(LocalDateTime.now())
+                .errors(List.of(e.getMessage()))
+                .build(), HttpStatus.CONFLICT);
     }
     
     @ExceptionHandler(SecurityUnauthorizedException.class)
-    public ResponseEntity<?> handleSecurityUnauthorized(SecurityUnauthorizedException e) {
-        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ApiErrorResponseDTO> handleSecurityUnauthorized(SecurityUnauthorizedException e) {
+        return new ResponseEntity<>(ApiErrorResponseDTO.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .timestamp(LocalDateTime.now())
+                .errors(List.of(e.getMessage()))
+                .build(), HttpStatus.UNAUTHORIZED);
     }
     
     @ExceptionHandler(SecurityInternalServerException.class)
-    public ResponseEntity<?> handleSecurityInternalServer(SecurityInternalServerException e) {
-        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiErrorResponseDTO> handleSecurityInternalServer(SecurityInternalServerException e) {
+        return new ResponseEntity<>(ApiErrorResponseDTO.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .timestamp(LocalDateTime.now())
+                .errors(List.of(e.getMessage()))
+                .build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
 }

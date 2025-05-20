@@ -1,5 +1,7 @@
 package com.bunshock.Bazar.controller;
 
+import com.bunshock.Bazar.dto.ApiResponseDTO;
+import com.bunshock.Bazar.dto.ApiSuccessResponseDTO;
 import com.bunshock.Bazar.dto.sale.HighestSaleDTO;
 import com.bunshock.Bazar.dto.OnCreate;
 import com.bunshock.Bazar.dto.OnUpdate;
@@ -7,8 +9,7 @@ import com.bunshock.Bazar.dto.sale.DateSalesSummaryDTO;
 import com.bunshock.Bazar.dto.sale.InputSaleDTO;
 import com.bunshock.Bazar.dto.sale.ShowSaleDTO;
 import com.bunshock.Bazar.model.Product;
-import com.bunshock.Bazar.model.Sale;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bunshock.Bazar.service.interfaces.ISaleService;
 import com.bunshock.Bazar.exception.ValidationHandler;
 import com.bunshock.Bazar.utils.mapper.SaleMapper;
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 
@@ -45,110 +47,183 @@ public class SaleController {
     }
     
     @PostMapping("/crear")
-    public ResponseEntity<String> createSale(@Validated(OnCreate.class) @RequestBody InputSaleDTO inputSale,
+    public ResponseEntity<ApiResponseDTO> createSale(
+            @Validated(OnCreate.class) @RequestBody InputSaleDTO inputSale,
             BindingResult bindingResult, @RequestParam Long id_client) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
 
         saleService.saveSale(inputSale, id_client);
-        return new ResponseEntity<>("Venta creada satisfactoriamente", HttpStatus.CREATED);
+        
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<Void>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("Venta creada correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build(), HttpStatus.CREATED);
     }
     
     @GetMapping("")
-    public ResponseEntity<List<ShowSaleDTO>> getAllSales() {
-        List<Sale> saleList = saleService.getSales();
-        return new ResponseEntity<>(saleList.stream()
-                .map(sale -> SaleMapper.SaleToShowSaleDTO(sale))
-                .collect(Collectors.toList()),
-                HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getAllSales() {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<List<ShowSaleDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("Lista de ventas obtenida correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(saleService.getSales().stream()
+                        .map(sale -> SaleMapper.SaleToShowSaleDTO(sale))
+                        .collect(Collectors.toList()))
+                .build(), HttpStatus.OK);
     }
     
     @GetMapping("/{sale_code}")
-    public ResponseEntity<ShowSaleDTO> getOneSale(@PathVariable Long sale_code) {
-        Sale sale = saleService.getSaleByCode(sale_code);
-        return new ResponseEntity<>(SaleMapper.SaleToShowSaleDTO(sale), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getOneSale(
+            @PathVariable Long sale_code) {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<ShowSaleDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Venta obtenida correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(SaleMapper.SaleToShowSaleDTO(
+                        saleService.getSaleByCode(sale_code)))
+                .build(), HttpStatus.OK);
     }
     
     @DeleteMapping("/eliminar/{sale_code}")
-    public ResponseEntity<String> deleteSale(@PathVariable Long sale_code) {
+    public ResponseEntity<ApiResponseDTO> deleteSale(
+            @PathVariable Long sale_code) {
         saleService.deleteSale(sale_code);
-        return new ResponseEntity<>("Venta borrada exitosamente", HttpStatus.OK);
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Venta borrada exitosamente")
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build(), HttpStatus.OK);
     }
     
     @PutMapping("/editar/{sale_code}")
-    public ResponseEntity<?> editSale(@PathVariable Long sale_code,
+    public ResponseEntity<ApiResponseDTO> editSale(
+            @PathVariable Long sale_code,
             @Validated(OnUpdate.class) @RequestBody InputSaleDTO editedSale,
             BindingResult bindingResult, @RequestParam Long id_client) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
 
-        Sale updatedSale = saleService.editSale(sale_code, editedSale, id_client);
-        return new ResponseEntity<>(SaleMapper.SaleToShowSaleDTO(updatedSale), HttpStatus.OK);
+        
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<ShowSaleDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Venta editada correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(SaleMapper.SaleToShowSaleDTO(
+                        saleService.editSale(sale_code, editedSale, id_client)))
+                .build(), HttpStatus.OK);
     }
     
     @GetMapping("/productos/{sale_code}")
-    public ResponseEntity<List<Product>> getSaleProductList(@PathVariable Long sale_code) {
-        return new ResponseEntity<>(saleService.getSaleProducts(sale_code), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getSaleProductList(
+            @PathVariable Long sale_code) {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<List<Product>>builder()
+                .status(HttpStatus.OK.value())
+                .message("Lista de productos de venta obtenida correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(saleService.getSaleProducts(sale_code))
+                .build(), HttpStatus.OK);
     }
     
     // Decisión: Para no tener definiciones ambiguas con el metodo getOneSale,
     // agregamos a la ruta el prefijo /resumen
     @GetMapping("/resumen/{sale_date}")
-    public ResponseEntity<DateSalesSummaryDTO> getSalesSummaryByDate(
+    public ResponseEntity<ApiResponseDTO> getSalesSummaryByDate(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sale_date) {
-        return new ResponseEntity<>(saleService.getSaleSummaryByDate(sale_date), HttpStatus.OK);
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<DateSalesSummaryDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Resumen de ventas de la fecha obtenido correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(saleService.getSaleSummaryByDate(sale_date))
+                .build(), HttpStatus.OK);
     }
     
     @GetMapping("/mayor_venta")
-    public ResponseEntity<HighestSaleDTO> getHighestSale() {
-        Sale highestSale = saleService.getHighestTotalSale();
-        return new ResponseEntity<>(SaleMapper.SaleToHighestSaleDTO(highestSale), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getHighestSale() {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<HighestSaleDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Mayor venta obtenida correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(SaleMapper.SaleToHighestSaleDTO(
+                        saleService.getHighestTotalSale()))
+                .build(), HttpStatus.OK);
     }
     
     @PutMapping("/concretar/{sale_code}")
-    public ResponseEntity<String> finalizePendingSale(@PathVariable Long sale_code) {
+    public ResponseEntity<ApiResponseDTO> finalizePendingSale(
+            @PathVariable Long sale_code) {
         saleService.finalizeSale(sale_code);
-        return new ResponseEntity<>("Venta (" + sale_code + ") concretada", HttpStatus.OK);
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Venta concretada correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build(), HttpStatus.OK);
     }
     
     // Operaciones de usuarios con rol : USER
     
     @PostMapping("/mis-ventas/crear")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> createMySale(@Validated(OnCreate.class) @RequestBody InputSaleDTO inputSale,
+    public ResponseEntity<ApiResponseDTO> createMySale(
+            @Validated(OnCreate.class) @RequestBody InputSaleDTO inputSale,
             BindingResult bindingResult) {
         
         if (bindingResult.hasErrors())
             return ValidationHandler.handleValidationErrors(bindingResult);
 
         saleService.saveMySale(inputSale);
-        return new ResponseEntity<>("Venta creada satisfactoriamente", HttpStatus.CREATED);
+        
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<Void>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("Venta de usuario creada satisfactoriamente")
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build(), HttpStatus.CREATED);
     }
     
     @GetMapping("/mis-ventas")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ShowSaleDTO>> getMySales() {
-        List<Sale> mySales = saleService.getMySales();
-        return new ResponseEntity<>(mySales.stream()
-                .map(sale -> SaleMapper.SaleToShowSaleDTO(sale))
-                .collect(Collectors.toList()),
-                HttpStatus.OK
-        );
+    public ResponseEntity<ApiResponseDTO> getMySales() {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<List<ShowSaleDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("Lista de ventas de usuario obtenida correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(saleService.getMySales().stream()
+                        .map(sale -> SaleMapper.SaleToShowSaleDTO(sale))
+                        .collect(Collectors.toList()))
+                .build(), HttpStatus.OK);
     }
     
     @GetMapping("/mis-ventas/{sale_code}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getMySaleByCode(@PathVariable Long sale_code) {
-        return new ResponseEntity<>(saleService.getMySaleByCode(sale_code), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO> getMySaleByCode(
+            @PathVariable Long sale_code) {
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<ShowSaleDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Venta de usuario obtenida correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(SaleMapper.SaleToShowSaleDTO(
+                        saleService.getMySaleByCode(sale_code)))
+                .build(), HttpStatus.OK);
     }
     
     @DeleteMapping("/mis-ventas/eliminar/{sale_code}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> deleteMySale(@PathVariable Long sale_code) {
+    public ResponseEntity<ApiResponseDTO> deleteMySale(
+            @PathVariable Long sale_code) {
         saleService.deleteMySale(sale_code);
-        return new ResponseEntity<>("Venta borrada exitosamente", HttpStatus.OK);
+        return new ResponseEntity<>(ApiSuccessResponseDTO.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Venta borrada correctamente")
+                .timestamp(LocalDateTime.now())
+                .data(null)
+                .build(), HttpStatus.OK);
     }
     
 }
