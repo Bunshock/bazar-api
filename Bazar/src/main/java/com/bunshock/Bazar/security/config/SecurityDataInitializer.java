@@ -85,11 +85,11 @@ public class SecurityDataInitializer implements CommandLineRunner {
                         .build()
                 ));
         
-        // Creo usuario: admin:admin (si no existe en la base de datos)
+        // Creo usuario: admin:Admin123! (si no existe en la base de datos)
         if(userRepository.findByUsername("admin").isEmpty()) {
             UserEntity userAdmin = UserEntity.builder()
                     .username("admin")
-                    .password(passwordEncoder.encode("admin"))
+                    .password(passwordEncoder.encode("Admin123#"))
                     .isEnabled(true)
                     .accountNonExpired(true)
                     .accountNonLocked(true)
