@@ -37,9 +37,7 @@ public class Client {
     public Client() {
     }
 
-    public Client(Long idClient, String firstName, String lastName, String dni,
-            UserEntity user) {
-        this.idClient = idClient;
+    public Client(String firstName, String lastName, String dni, UserEntity user) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dni = dni;
