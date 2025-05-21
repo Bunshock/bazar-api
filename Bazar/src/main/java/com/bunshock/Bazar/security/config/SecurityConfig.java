@@ -1,5 +1,7 @@
 package com.bunshock.Bazar.security.config;
 
+import com.bunshock.Bazar.exception.CustomAccessDeniedHandler;
+import com.bunshock.Bazar.exception.CustomAuthenticationEntryPoint;
 import com.bunshock.Bazar.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,11 +27,17 @@ public class SecurityConfig {
     
     private final CustomUserDetailsService userDetailsService;
     private final JwtProvider jwtProvider;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Autowired
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtProvider jwtProvider) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtProvider jwtProvider,
+            CustomAccessDeniedHandler customAccessDeniedHandler,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.userDetailsService = userDetailsService;
         this.jwtProvider = jwtProvider;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
     
     @Bean
@@ -39,11 +47,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS
                 ))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         // Acceso global a docs
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // Acceso global a registro y login
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login").permitAll()
                         // Acceso global a la lista de productos del bazar, y a productos específicos
                         .requestMatchers(HttpMethod.GET, "/productos").permitAll()
                         .requestMatchers(new RegexRequestMatcher("/productos/\\d+$", "GET")).permitAll()
@@ -66,8 +78,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
     
-    @Bean JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter(jwtProvider, userDetailsService);
+    @Bean
+    public JwtAuthFilter jwtAuthFilter() {
+        return new JwtAuthFilter(jwtProvider, userDetailsService, customAuthenticationEntryPoint);
     }
     
 }

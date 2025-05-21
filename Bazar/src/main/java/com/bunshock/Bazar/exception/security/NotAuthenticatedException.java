@@ -1,10 +1,12 @@
 package com.bunshock.Bazar.exception.security;
 
+import org.springframework.security.core.AuthenticationException;
 
-public class NotAuthenticatedException extends SecurityUnauthorizedException {
+
+public class NotAuthenticatedException extends AuthenticationException {
     
     public NotAuthenticatedException() {
-        super("usuario no autenticado");
+        super("Usuario no autenticado");
     }
     
 }

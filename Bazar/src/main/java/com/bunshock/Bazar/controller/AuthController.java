@@ -73,7 +73,7 @@ public class AuthController {
                         loginDTO.getPassword()
                 )
         );
-
+        
         String token = jwtProvider.generateToken(auth);
         
         return new ResponseEntity<>(ApiSuccessResponseDTO.<JwtResponseDTO>builder()
