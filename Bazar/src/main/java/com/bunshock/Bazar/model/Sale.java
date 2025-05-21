@@ -46,9 +46,8 @@ public class Sale {
     public Sale() {
     }
 
-    public Sale(Long saleCode, LocalDate saleDate, Double totalPrice,
-            List<Product> productList, Client client) {
-        this.saleCode = saleCode;
+    public Sale(LocalDate saleDate, Double totalPrice, List<Product> productList,
+            Client client) {
         this.saleDate = saleDate;
         this.totalPrice = totalPrice;
         this.finalized = false;
